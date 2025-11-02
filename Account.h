@@ -4,8 +4,8 @@
 #include <string>
 #include <chrono>
 #include <vector>
-using namespace std;
 
+using namespace std;
 
 // BASE ACCOUNT CLASS
 class Account
@@ -15,40 +15,41 @@ protected:
     double balance;
 
 public:
-    Account(const string& accNum = "", double bal = 0): accountNumber(accNum), balance(bal) {}
+    Account(const string& accNum = "", double bal = 0.0) : accountNumber(accNum), balance(bal) {}
 
     void setBal(double bal) { balance = bal; }
     double getBal() const { return balance; }
     string getAccNum() const { return accountNumber; }
 
-    void display() const; 
+    void display() const;
 };
 
-
 // SAVINGS ACCOUNT CLASS
-class SavingsAccount : protected Account
+class SavingsAccount : public Account
 {
 private:
     double interestRate;
 
 public:
-    SavingsAccount(const string& accNum = "", double bal, double rate): Account(accNum, bal), interestRate(rate) {}
+    // Provide all defaults so declaration is valid
+    SavingsAccount(const string& accNum = "", double bal = 0.0, double rate = 0.0) : Account(accNum, bal), interestRate(rate) {}
 
     double getInterestRate() const { return interestRate; }
+    void setInterestRate(double r) { interestRate = r; }
 
-    void display() const; 
+    void display() const;
 };
-
 
 // SPENDING AMOUNT CLASS
 class SpendingAmount
 {
-private:
+public:
     struct Transaction {
         double amount;
-        std::chrono::system_clock::time_point time;
+        chrono::system_clock::time_point time;
     };
 
+private:
     vector<Transaction> transactions;
 
 public:
@@ -56,19 +57,20 @@ public:
 
     const vector<Transaction>& getTransactions() const { return transactions; }
 
+    void addTransaction(double amount, const chrono::system_clock::time_point& timePoint);
+
     void displaySpentLastDays(int days) const;
-    void displaySpentBetween(const std::chrono::system_clock::time_point& start,
-                             const std::chrono::system_clock::time_point& end) const;
-    static std::chrono::system_clock::time_point makeTimePoint(int year, int month, int day);
+    void displaySpentBetween(const chrono::system_clock::time_point& start,
+                             const chrono::system_clock::time_point& end) const;
+    static chrono::system_clock::time_point makeTimePoint(int year, int month, int day);
 
     void display() const;
 };
 
-
 // ACCOUNT TIER CLASSES
 
 // BASIC ACCOUNT
-class BasicAccount : protected Account
+class BasicAccount : public Account
 {
 private:
     SavingsAccount savings;
@@ -76,17 +78,19 @@ private:
     double minBalance;
 
 public:
-    BasicAccount(const string& accNum, double bal, double rate, double minBal);
+    BasicAccount(const string& accNum = "", double bal = 0.0, double rate = 0.0, double minBal = 0.0);
 
     double getMinBalance() const { return minBalance; }
+    SavingsAccount& getSavingsAccount() { return savings; }
     const SavingsAccount& getSavingsAccount() const { return savings; }
+    SpendingAmount& getSpendingAmount() { return spending; }
     const SpendingAmount& getSpendingAmount() const { return spending; }
 
     void display() const;
 };
 
-// SILVER ACCOUNT
-class SilverAccount : protected Account
+// SILVER ACCOUNT (kept structure same as basic, different defaults possible)
+class SilverAccount : public Account
 {
 private:
     SavingsAccount savings;
@@ -94,7 +98,7 @@ private:
     double minBalance;
 
 public:
-    SilverAccount(const string& accNum, double bal, double rate, double minBal);
+    SilverAccount(const string& accNum = "", double bal = 0.0, double rate = 0.0, double minBal = 0.0);
 
     double getMinBalance() const { return minBalance; }
     const SavingsAccount& getSavingsAccount() const { return savings; }
@@ -104,7 +108,7 @@ public:
 };
 
 // GOLD ACCOUNT
-class GoldAccount : protected Account
+class GoldAccount : public Account
 {
 private:
     SavingsAccount savings;
@@ -112,7 +116,7 @@ private:
     double minBalance;
 
 public:
-    GoldAccount(const string& accNum, double bal, double rate, double minBal);
+    GoldAccount(const string& accNum = "", double bal = 0.0, double rate = 0.0, double minBal = 0.0);
 
     double getMinBalance() const { return minBalance; }
     const SavingsAccount& getSavingsAccount() const { return savings; }
