@@ -1,9 +1,13 @@
 #include "signup.h"
+#include "Transaction.h"
 #include <cctype>
 #include <sstream>
 
+using namespace std;
+
 // ==================== Customer Class ====================
-Customer::Customer() : isLocked(false), failedAttempts(0), lockTime(0) {}
+Customer::Customer() : isLocked(false), failedAttempts(0), lockTime(0), account(nullptr) {}
+
 string Customer::hashPassword(const string& password) {
     unsigned int hash = 5381;
     for (char c : password) {
@@ -13,6 +17,7 @@ string Customer::hashPassword(const string& password) {
     ss << hex << hash;
     return ss.str();
 }
+
 string Customer::encryptDecrypt(const string& data) {
     char key = 'K';  // symmetric key for XOR
     string result = data;
@@ -20,13 +25,16 @@ string Customer::encryptDecrypt(const string& data) {
         result[i] = data[i] ^ key;
     return result;
 }
+
 void Customer::setPassword(string pass) {
     passwordHash = hashPassword(pass);
 }
+
 bool Customer::verifyPassword(string pass) const {
     string inputHash = hashPassword(pass);
     return passwordHash == inputHash;
 }
+
 bool Customer::isAccountLocked() const {
     if (isLocked) {
         time_t currentTime = time(nullptr);
@@ -44,16 +52,22 @@ void Customer::incrementFailedAttempts() {
         lockTime = time(nullptr);
     }
 }
+
 void Customer::resetFailedAttempts() {
     failedAttempts = 0;
     isLocked = false;
 }
+
 void Customer::setBankAccountNo(string accNo) {
     bankAccountNo = accNo;
+    
 }
+
 string Customer::getBankAccountNo() const {
     return bankAccountNo;
+    
 }
+
 // File output (encryption applied) - FIXED: Proper line formatting
 ofstream& operator<<(ofstream& ofs, const Customer& cust) {
     ofs << Customer::encryptDecrypt(cust.username) << "\n";
@@ -64,6 +78,7 @@ ofstream& operator<<(ofstream& ofs, const Customer& cust) {
     ofs << cust.failedAttempts << "\n";
     ofs << cust.isLocked << "\n";
     ofs << cust.lockTime << "\n";
+    ofs << (cust.account ? cust.account->getBal() : 0.0) << "\n---\n";
     ofs << "---\n";  // Separator between users
     return ofs;
 }
@@ -102,11 +117,15 @@ ifstream& operator>>(ifstream& ifs, Customer& cust) {
     if (!getline(ifs, line)) return ifs;
     cust.lockTime = stol(line);
 
+    getline(ifs, line); double bal = stod(line);
+    if (cust.account) cust.account->setBal(bal);
+
     // Read separator
     if (!getline(ifs, line)) return ifs;
 
     return ifs;
 }
+
 // ==================== UserRegistration ====================
 UserRegistration::UserRegistration() {
     loadFromFile();
@@ -120,8 +139,8 @@ bool UserRegistration::isValidPassword(const string& password) const {
     if (password.length() < 8) return false;
     bool hasUpper = false, hasLower = false;
     for (char c : password) {
-        if (isupper(c)) hasUpper = true;
-        if (islower(c)) hasLower = true;
+        if (isupper(static_cast<unsigned char>(c))) hasUpper = true;
+        if (islower(static_cast<unsigned char>(c))) hasLower = true;
     }
     return hasUpper && hasLower;
 }
@@ -129,7 +148,7 @@ bool UserRegistration::isValidPassword(const string& password) const {
 bool UserRegistration::isValidName(const string& name) const {
     if (name.empty() || name.length() > 50) return false;
     for (char c : name) {
-        if (!isalpha(c) && c != ' ') return false;
+        if (!isalpha(static_cast<unsigned char>(c)) && c != ' ') return false;
     }
     return true;
 }
@@ -137,7 +156,7 @@ bool UserRegistration::isValidName(const string& name) const {
 bool UserRegistration::isValidPhone(const string& phone) const {
     if (phone.length() != 10) return false;
     for (char c : phone) {
-        if (!isdigit(c)) return false;
+        if (!isdigit(static_cast<unsigned char>(c))) return false;
     }
     return true;
 }
@@ -149,8 +168,8 @@ bool UserRegistration::isUsernameTaken(const string& username) const {
 bool UserRegistration::registerUser() {
     Customer newCustomer;
     string input;
-    
-    cin.ignore();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
     cout << "Enter name: ";
     getline(cin, input);
     if (!isValidName(input)) {
@@ -187,7 +206,7 @@ bool UserRegistration::registerUser() {
     }
 
     newCustomer.setPassword(input);
-    users[newCustomer.username] = newCustomer;
+    users[newCustomer.username] = move(newCustomer);
     cout << "Registration successful!\n";
     saveToFile();
     return true;
@@ -195,7 +214,7 @@ bool UserRegistration::registerUser() {
 
 bool UserRegistration::loginUser() {
     string username, password;
-    cin.ignore();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
     cout << "Enter username: ";
     getline(cin, username);
     cout << "Enter password: ";
@@ -216,9 +235,12 @@ bool UserRegistration::loginUser() {
     if (customer.verifyPassword(password)) {
         customer.resetFailedAttempts();
         cout << "Login successful! Welcome, " << customer.name << "!\n";
+        showDashboard(customer);
         saveToFile();
         return true;
-    } else {
+    } 
+    
+    else {
         customer.incrementFailedAttempts();
         cout << "Invalid password! Attempts left: " << (3 - customer.failedAttempts) << "\n";
         if (customer.isAccountLocked())
@@ -263,8 +285,77 @@ void UserRegistration::loadFromFile() {
         Customer cust;
         file >> cust;
         if (file.fail()) break;
-        users[cust.username] = cust;
+        users[cust.username] = move(cust);
     }
-    file.close();
+
     cout << "Loaded " << userCount << " user(s) from file.\n";
+    file.close();
+}
+
+void UserRegistration::showDashboard(Customer& c) {
+int choice = 0;
+while (choice != 6) {
+cout << "\n--- Dashboard ---\n";
+cout << "1. View Account\n2. Deposit Salary\n3. Pay Bills\n4. Transfer\n5. Take Loan\n6. Logout\nChoice: ";
+cin >> choice;
+
+
+switch (choice) {
+case 1:
+if (c.account) c.account->display();
+else cout << "No linked account.\n";
+break;
+
+
+case 2: {
+double amount;
+cout << "Enter salary amount: ";
+cin >> amount;
+if (c.account) Transaction::salary(*c.account, amount);
+break;
+}
+
+
+case 3:
+if (c.account) Transaction::bills(*c.account);
+break;
+
+
+case 4: {
+string to;
+double amt;
+cout << "Enter recipient username: ";
+cin >> to;
+cout << "Enter amount: ";
+cin >> amt;
+
+
+auto it = users.find(to);
+if (it != users.end() && it->second.account && c.account)
+Transaction::transfer(*c.account, *it->second.account, amt);
+else
+cout << "Recipient not found or invalid account.\n";
+break;
+}
+
+
+case 5: {
+double amt;
+cout << "Enter loan amount: ";
+cin >> amt;
+if (c.account) Transaction::loan(*c.account, amt);
+break;
+}
+
+
+case 6:
+cout << "Logging out...\n";
+saveToFile();
+break;
+
+
+default:
+cout << "Invalid option.\n";
+}
+}
 }
