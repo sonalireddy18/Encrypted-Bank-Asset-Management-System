@@ -8,6 +8,8 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <memory>
+#include "Accounts.h"
 using namespace std;
 
 class Customer {
@@ -21,6 +23,8 @@ public:
     string name;
     string username;
     string phno;
+    unique_ptr<BasicAccount> account;
+
     Customer();
     void setPassword(string pass);
     bool verifyPassword(string pass) const;
@@ -45,6 +49,7 @@ private:
     bool isValidName(const string& name) const;
     bool isValidPhone(const string& phone) const;
     bool isUsernameTaken(const string& username) const;
+    void showDashboard(Customer& customer);
 public:
     UserRegistration();
     ~UserRegistration();
