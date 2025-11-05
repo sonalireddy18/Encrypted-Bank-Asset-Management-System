@@ -1,5 +1,5 @@
-#ifndef ACCOUNT_H
-#define ACCOUNT_H
+#ifndef ACCOUNTS_H
+#define ACCOUNTS_H
 
 #include <string>
 #include <vector>
@@ -17,6 +17,7 @@ public:
     double getBal() const;
     std::string getAccNum() const;
     virtual void display() const;
+    void printAccountBalance() const;
 };
 
 class SavingsAccount : public Account {
