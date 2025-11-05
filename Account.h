@@ -1,128 +1,67 @@
-#ifndef ACCOUNTS_H
-#define ACCOUNTS_H
+#ifndef ACCOUNT_H
+#define ACCOUNT_H
 
 #include <string>
-#include <chrono>
 #include <vector>
+#include <chrono>
+#include <iostream>
 
-using namespace std;
-
-// BASE ACCOUNT CLASS
-class Account
-{
+class Account {
 protected:
-    string accountNumber;
+    std::string accountNumber;
     double balance;
 
 public:
-    Account(const string& accNum = "", double bal = 0.0) : accountNumber(accNum), balance(bal) {}
-
-    void setBal(double bal) { balance = bal; }
-    double getBal() const { return balance; }
-    string getAccNum() const { return accountNumber; }
-
-    void display() const;
+    Account(const std::string& accNum = "", double bal = 0.0);
+    void setBal(double bal);
+    double getBal() const;
+    std::string getAccNum() const;
+    virtual void display() const;
 };
 
-// SAVINGS ACCOUNT CLASS
-class SavingsAccount : public Account
-{
+class SavingsAccount : public Account {
 private:
     double interestRate;
 
 public:
-    // Provide all defaults so declaration is valid
-    SavingsAccount(const string& accNum = "", double bal = 0.0, double rate = 0.0) : Account(accNum, bal), interestRate(rate) {}
-
-    double getInterestRate() const { return interestRate; }
-    void setInterestRate(double r) { interestRate = r; }
-
-    void display() const;
+    SavingsAccount(const std::string& accNum = "", double bal = 0.0, double rate = 0.0);
+    double getInterestRate() const;
+    void setInterestRate(double r);
+    void display() const override;
 };
 
-// SPENDING AMOUNT CLASS
-class SpendingAmount
-{
+class SpendingAmount {
 public:
     struct Transaction {
         double amount;
-        chrono::system_clock::time_point time;
+        std::chrono::system_clock::time_point time;
     };
 
 private:
-    vector<Transaction> transactions;
+    std::vector<Transaction> transactions;
 
 public:
-    SpendingAmount() = default;
-
-    const vector<Transaction>& getTransactions() const { return transactions; }
-
-    void addTransaction(double amount, const chrono::system_clock::time_point& timePoint);
-
+    void addTransaction(double amount, const std::chrono::system_clock::time_point& timePoint);
     void displaySpentLastDays(int days) const;
-    void displaySpentBetween(const chrono::system_clock::time_point& start,
-                             const chrono::system_clock::time_point& end) const;
-    static chrono::system_clock::time_point makeTimePoint(int year, int month, int day);
-
-    void display() const;
+    void displayAll() const;
 };
 
-// ACCOUNT TIER CLASSES
-
-// BASIC ACCOUNT
-class BasicAccount : public Account
-{
-private:
-    SavingsAccount savings;
-    SpendingAmount spending;
-    double minBalance;
-
+class BasicAccount : public Account {
 public:
-    BasicAccount(const string& accNum = "", double bal = 0.0, double rate = 0.0, double minBal = 0.0);
-
-    double getMinBalance() const { return minBalance; }
-    SavingsAccount& getSavingsAccount() { return savings; }
-    const SavingsAccount& getSavingsAccount() const { return savings; }
-    SpendingAmount& getSpendingAmount() { return spending; }
-    const SpendingAmount& getSpendingAmount() const { return spending; }
-
-    void display() const;
+    BasicAccount(const std::string& accNum = "", double bal = 0.0);
+    void display() const override;
 };
 
-// SILVER ACCOUNT (kept structure same as basic, different defaults possible)
-class SilverAccount : public Account
-{
-private:
-    SavingsAccount savings;
-    SpendingAmount spending;
-    double minBalance;
-
+class SilverAccount : public Account {
 public:
-    SilverAccount(const string& accNum = "", double bal = 0.0, double rate = 0.0, double minBal = 0.0);
-
-    double getMinBalance() const { return minBalance; }
-    const SavingsAccount& getSavingsAccount() const { return savings; }
-    const SpendingAmount& getSpendingAmount() const { return spending; }
-
-    void display() const;
+    SilverAccount(const std::string& accNum = "", double bal = 0.0);
+    void display() const override;
 };
 
-// GOLD ACCOUNT
-class GoldAccount : public Account
-{
-private:
-    SavingsAccount savings;
-    SpendingAmount spending;
-    double minBalance;
-
+class GoldAccount : public Account {
 public:
-    GoldAccount(const string& accNum = "", double bal = 0.0, double rate = 0.0, double minBal = 0.0);
-
-    double getMinBalance() const { return minBalance; }
-    const SavingsAccount& getSavingsAccount() const { return savings; }
-    const SpendingAmount& getSpendingAmount() const { return spending; }
-
-    void display() const;
+    GoldAccount(const std::string& accNum = "", double bal = 0.0);
+    void display() const override;
 };
 
-#endif
+#endif // ACCOUNT_H
