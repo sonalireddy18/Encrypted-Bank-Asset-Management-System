@@ -1,106 +1,90 @@
-#include "Accounts.h"
+#include "account.h"
 #include <iostream>
-#include <iomanip>
-#include <chrono>
-#include <ctime>
 
 using namespace std;
 
-// ACCOUNT IMPLEMENTATION
-void Account::display() const
-{
+// Account methods
+Account::Account(const std::string& accNum, double bal) : accountNumber(accNum), balance(bal) {}
+
+void Account::setBal(double bal) {
+    balance = bal;
+}
+
+double Account::getBal() const {
+    return balance;
+}
+
+std::string Account::getAccNum() const {
+    return accountNumber;
+}
+
+void Account::display() const {
     cout << "Account Number: " << accountNumber << "\n"
          << "Balance: " << balance << "\n";
 }
 
-// SAVINGS ACCOUNT IMPLEMENTATION
-void SavingsAccount::display() const
-{
+// SavingsAccount methods
+SavingsAccount::SavingsAccount(const std::string& accNum, double bal, double rate) : Account(accNum, bal), interestRate(rate) {}
+
+double SavingsAccount::getInterestRate() const {
+    return interestRate;
+}
+
+void SavingsAccount::setInterestRate(double r) {
+    interestRate = r;
+}
+
+void SavingsAccount::display() const {
     cout << "Savings Account Number: " << accountNumber << "\n"
          << "Balance: " << balance << "\n"
          << "Interest Rate: " << interestRate << "%\n";
 }
 
-// SPENDING AMOUNT IMPLEMENTATION
-void SpendingAmount::addTransaction(double amount, const chrono::system_clock::time_point& timePoint)
-{
+// SpendingAmount methods
+void SpendingAmount::addTransaction(double amount, const chrono::system_clock::time_point& timePoint) {
     transactions.push_back({amount, timePoint});
 }
 
-void SpendingAmount::displaySpentLastDays(int days) const
-{
+void SpendingAmount::displaySpentLastDays(int days) const {
     auto now = chrono::system_clock::now();
     double total = 0;
-    for (const auto& t : transactions)
-    {
+    for (const auto& t : transactions) {
         auto diff = chrono::duration_cast<chrono::hours>(now - t.time).count();
-        if (diff <= days * 24)
+        if (diff <= days * 24) {
             total += t.amount;
+        }
     }
     cout << "Total spent in last " << days << " day(s): " << total << "\n";
 }
 
-void SpendingAmount::displaySpentBetween(const chrono::system_clock::time_point& start, const chrono::system_clock::time_point& end) const
-{
-    double total = 0;
+void SpendingAmount::displayAll() const {
+    cout << "All Transactions:\n";
     for (const auto& t : transactions) {
-        if (t.time >= start && t.time <= end)
-            total += t.amount;
+        time_t tt = chrono::system_clock::to_time_t(t.time);
+        cout << "Amount: " << t.amount << ", Time: " << ctime(&tt);
     }
-    cout << "Total spent between specified dates: " << total << "\n";
 }
 
-chrono::system_clock::time_point SpendingAmount::makeTimePoint(int year, int month, int day)
-{
-    std::tm tm = {};
-    tm.tm_year = year - 1900;
-    tm.tm_mon = month - 1;
-    tm.tm_mday = day;
-    tm.tm_hour = 0;
-    tm.tm_min = 0;
-    tm.tm_sec = 0;
-    return chrono::system_clock::from_time_t(std::mktime(&tm));
-}
-
-void SpendingAmount::display() const {
-    cout << "Number of transactions: " << transactions.size() << "\n";
-}
-
-// BASIC ACCOUNT IMPLEMENTATION
-BasicAccount::BasicAccount(const string& accNum, double bal, double rate, double minBal)
-    : Account(accNum, bal), savings(accNum + "-SAV", bal, rate),
-      spending(), minBalance(minBal) {}
+// BasicAccount methods
+BasicAccount::BasicAccount(const std::string& accNum, double bal) : Account(accNum, bal) {}
 
 void BasicAccount::display() const {
-    cout << "----- Basic Account -----\n";
-    Account::display();
-    savings.display();
-    spending.display();
-    cout << "Minimum Balance: " << minBalance << "\n";
+    cout << "Basic Account Number: " << accountNumber << "\n"
+         << "Balance: " << balance << "\n";
 }
 
-// SILVER ACCOUNT IMPLEMENTATION
-SilverAccount::SilverAccount(const string& accNum, double bal, double rate, double minBal)
-    : Account(accNum, bal), savings(accNum + "-SAV", bal, rate),
-      spending(), minBalance(minBal) {}
+// SilverAccount methods
+SilverAccount::SilverAccount(const std::string& accNum, double bal) : Account(accNum, bal) {}
 
 void SilverAccount::display() const {
-    cout << "----- Silver Account -----\n";
-    Account::display();
-    savings.display();
-    spending.display();
-    cout << "Minimum Balance: " << minBalance << "\n";
+    cout << "Silver Account Number: " << accountNumber << "\n"
+         << "Balance: " << balance << "\n";
 }
 
-// GOLD ACCOUNT IMPLEMENTATION
-GoldAccount::GoldAccount(const string& accNum, double bal, double rate, double minBal)
-    : Account(accNum, bal), savings(accNum + "-SAV", bal, rate),
-      spending(), minBalance(minBal) {}
+// GoldAccount methods
+GoldAccount::GoldAccount(const std::string& accNum, double bal) : Account(accNum, bal) {}
 
 void GoldAccount::display() const {
-    cout << "----- Gold Account -----\n";
-    Account::display();
-    savings.display();
-    spending.display();
-    cout << "Minimum Balance: " << minBalance << "\n";
+    cout << "Gold Account Number: " << accountNumber << "\n"
+         << "Balance: " << balance << "\n";
 }
