@@ -1,27 +1,18 @@
 #ifndef TRANSACTION_H
 #define TRANSACTION_H
 
-#include "Accounts.h"
 #include <string>
+#include "signup.h"
+#include "block.h"
 
-class Transaction
-{
+class Transaction {
 public:
-    //Loan handling
-    static void loan(Account& account, double loanAmount);
+    static Blockchain blockchain;
 
-    //Interest handling
-    static void interest(Account& account, SavingsAccount& savings, const std::string& tier);
-
-    //Transfers (spending, deposits, etc.)
-    //'useCredit' means apply a 2% fee
-    static void transfer(Account& from, Account& to, double amount, bool useCredit = false);
-
-    //Bills and Rent
-    static void bills(Account& account);
-
-    //Salary deposit
-    static void salary(Account& account, double salaryAmount);
+    static void transferByAccountNoUserRegistration(UserRegistration& userReg, const std::string& fromAccNo, const std::string& toAccNo, double amount);
+    static void withdrawUserRegistration(UserRegistration& userReg, const std::string& accNo, double amount);
+    static void depositUserRegistration(UserRegistration& userReg, const std::string& accNo, double amount);
+    static void printTransactionHistory();
 };
 
-#endif
+#endif // TRANSACTION_H
