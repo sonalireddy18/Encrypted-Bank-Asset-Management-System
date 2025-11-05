@@ -1,4 +1,4 @@
-#include "account.h"
+#include "Accounts.h"
 #include <iostream>
 
 using namespace std;
@@ -12,6 +12,10 @@ void Account::setBal(double bal) {
 
 double Account::getBal() const {
     return balance;
+}
+
+void Account::printAccountBalance() const {
+    cout << "Account Number: " << accountNumber << ", Balance: " << balance << "\n";
 }
 
 std::string Account::getAccNum() const {
