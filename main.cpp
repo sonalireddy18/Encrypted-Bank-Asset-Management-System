@@ -1,7 +1,5 @@
 #include <iostream>
 #include <limits>
-#include <string>
-
 #include "signup.h"
 #include "transaction.h"
 #include "account.h"
@@ -29,10 +27,18 @@ void showUserMenu() {
 int main() {
     UserRegistration registrationSystem;
     Transaction transactionSystem;
+
+    // Load users from file on program start
+    if (!registrationSystem.loadUsersFromFile("users.dat")) {
+        cerr << "No saved user data found. Starting fresh.\n";
+    } else {
+        cerr << "User data loaded from file.\n";
+    }
+
     string currentUsername;
     bool loggedIn = false;
-
     int choice = 0;
+
     while (true) {
         if (!loggedIn) {
             showMainMenu();
@@ -49,7 +55,14 @@ int main() {
                 cout << "Enter username: "; cin >> username;
                 cout << "Enter password: "; cin >> password;
                 cout << "Enter Account Number: "; cin >> accNo;
-                registrationSystem.registerUser(username, password, accNo);
+
+                if (registrationSystem.registerUser(username, password, accNo)) {
+                    // Save users to file on successful registration
+                    if (!registrationSystem.saveUsersToFile("users.dat")) {
+                        cerr << "Warning: Could not save user data after registration.\n";
+                    }
+                }
+
             } else if (choice == 2) {
                 string username, password;
                 cout << "Username: "; cin >> username;
@@ -61,9 +74,11 @@ int main() {
                 } else {
                     cout << "Login failed.\n";
                 }
+
             } else if (choice == 3) {
                 cout << "Exiting...\n";
                 break;
+
             } else {
                 cout << "Invalid choice.\n";
             }
@@ -76,6 +91,7 @@ int main() {
                 cout << "Invalid input.\n";
                 continue;
             }
+
             Customer* cust = registrationSystem.getCustomerByUsername(currentUsername);
             if (!cust) {
                 cout << "User session error. Logging out.\n";
@@ -90,21 +106,31 @@ int main() {
                 cout << "Enter recipient account number: "; cin >> toAccNo;
                 cout << "Enter amount to transfer: "; cin >> amount;
                 transactionSystem.transferByAccountNoUserRegistration(registrationSystem, accNo, toAccNo, amount);
+
             } else if (choice == 2) {
                 double amount;
                 cout << "Enter amount to deposit: "; cin >> amount;
                 transactionSystem.depositUserRegistration(registrationSystem, accNo, amount);
+
             } else if (choice == 3) {
                 double amount;
                 cout << "Enter amount to withdraw: "; cin >> amount;
                 transactionSystem.withdrawUserRegistration(registrationSystem, accNo, amount);
+
             } else if (choice == 4) {
                 transactionSystem.printTransactionHistory();
+
             } else if (choice == 5) {
                 cout << "Are you sure you want to delete your account? (y/n): ";
                 char confirm; cin >> confirm;
                 if (confirm == 'y' || confirm == 'Y') {
                     registrationSystem.deleteUserByUsername(currentUsername);
+
+                    // Save changes to file after deleting user
+                    if (!registrationSystem.saveUsersToFile("users.dat")) {
+                        cerr << "Warning: Could not save user data after account deletion.\n";
+                    }
+
                     loggedIn = false;
                     currentUsername.clear();
                 }
@@ -120,4 +146,3 @@ int main() {
 
     return 0;
 }
-
