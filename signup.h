@@ -11,6 +11,7 @@ const int LOCK_DURATION = 300; // 5 minutes in seconds
 class Customer {
 public:
     Customer();
+
     void setPassword(std::string pass);
     bool checkPassword(const std::string& pass);
     std::string getBankAccountNo() const;
@@ -22,9 +23,10 @@ public:
     int failedAttempts;
     time_t lockTime;
 
+    static std::string encryptDecrypt(const std::string& data); // Make public static to avoid inaccessible error
+
 private:
     static std::string hashPassword(const std::string& password);
-    static std::string encryptDecrypt(const std::string& data);
 };
 
 class UserRegistration {
@@ -36,8 +38,11 @@ public:
     Customer* getCustomerByUsername(const std::string& username);
     Customer* getCustomerByAccountNo(const std::string& accNo);
 
+    bool saveUsersToFile(const std::string& filename);
+    bool loadUsersFromFile(const std::string& filename);
+
 private:
-    std::map<std::string, Customer> users;
+    static std::map<std::string, Customer> users;  // static declaration of users map
 };
 
 #endif // SIGNUP_H
