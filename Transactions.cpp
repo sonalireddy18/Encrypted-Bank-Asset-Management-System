@@ -1,61 +1,37 @@
-#include "transaction.h"
+#include "Transaction.h"
 #include <iostream>
-#include "block.h"
-#include "signup.h"
-#include "account.h"S
-
 using namespace std;
 
 Blockchain Transaction::blockchain;
 
-void Transaction::transferByAccountNoUserRegistration(UserRegistration& userReg, const std::string& fromAccNo, const std::string& toAccNo, double amount) {
-    Customer* fromCust = userReg.getCustomerByAccountNo(fromAccNo);
-    Customer* toCust = userReg.getCustomerByAccountNo(toAccNo);
-
-    if (fromCust && fromCust->account && toCust && toCust->account) {
-        if (fromCust->account->getBal() >= amount) {
-            fromCust->account->setBal(fromCust->account->getBal() - amount);
-            toCust->account->setBal(toCust->account->getBal() + amount);
-            cout << "Transfer successful.\n";
-
-            // Add transfer to blockchain
-            blockchain.addTransaction(fromAccNo, toAccNo, amount);
-        } else {
-            cout << "Insufficient funds for transfer.\n";
-        }
-    } else {
-        cout << "One or both account numbers are invalid.\n";
+void Transaction::transferByAccountNoUserRegistration(UserRegistration& ur,const string& f,const string& t,double amt){
+    Customer* fc = ur.getCustomerByAccountNo(f);
+    Customer* tc = ur.getCustomerByAccountNo(t);
+    if(dynamic_cast<SavingsAccount*>(fc->account)){
+        cout<<"Savings cannot transfer.\n"; return;
+    }
+    if(fc && tc){
+        if(fc->account->getBal()>=amt){
+            fc->account->setBal(fc->account->getBal()-amt);
+            tc->account->setBal(tc->account->getBal()+amt);
+            cout<<"Transfer OK\n";
+            blockchain.addTransaction(f,t,amt);
+        } else cout<<"Insufficient\n";
     }
 }
 
-void Transaction::withdrawUserRegistration(UserRegistration& userReg, const std::string& accNo, double amount) {
-    Customer* cust = userReg.getCustomerByAccountNo(accNo);
-    if (cust && cust->account) {
-        if (cust->account->getBal() >= amount) {
-            cust->account->setBal(cust->account->getBal() - amount);
-            cout << "Withdrawal successful.\n";
-            // Add withdrawal as a transaction to blockchain; toAccNo empty for withdrawal
-            blockchain.addTransaction(accNo, "", amount);
-        } else {
-            cout << "Insufficient balance to withdraw.\n";
-        }
-    } else {
-        cout << "Invalid account number.\n";
-    }
+void Transaction::withdrawUserRegistration(UserRegistration& ur,const string& a,double amt){
+    Customer* c = ur.getCustomerByAccountNo(a);
+    if(c->account->getBal()>=amt){
+        c->account->setBal(c->account->getBal()-amt);
+        blockchain.addTransaction(a,"",amt);
+        cout<<"Withdraw OK\n";
+    } else cout<<"Insufficient\n";
 }
-
-void Transaction::depositUserRegistration(UserRegistration& userReg, const std::string& accNo, double amount) {
-    Customer* cust = userReg.getCustomerByAccountNo(accNo);
-    if (cust && cust->account) {
-        cust->account->setBal(cust->account->getBal() + amount);
-        cout << "Deposit successful.\n";
-        // Add deposit as a transaction to blockchain; fromAccNo empty for deposit
-        blockchain.addTransaction("", accNo, amount);
-    } else {
-        cout << "Invalid account number.\n";
-    }
+void Transaction::depositUserRegistration(UserRegistration& ur,const string& a,double amt){
+    Customer* c = ur.getCustomerByAccountNo(a);
+    c->account->setBal(c->account->getBal()+amt);
+    blockchain.addTransaction("",a,amt);
+    cout<<"Deposit OK\n";
 }
-
-void Transaction::printTransactionHistory() {
-    blockchain.printChain();
-}
+void Transaction::printTransactionHistory(){ blockchain.printChain(); }
