@@ -3,10 +3,10 @@
 
 #include <string>
 #include <map>
-#include "account.h"
+#include "Accounts.h"
 
 const int MAX_FAILED_ATTEMPTS = 3;
-const int LOCK_DURATION = 300; // 5 minutes in seconds
+const int LOCK_DURATION = 300; // seconds
 
 class Customer {
 public:
@@ -16,6 +16,9 @@ public:
     bool checkPassword(const std::string& pass);
     std::string getBankAccountNo() const;
 
+    // upgrade function exists in another file
+    void upgradeAccount();
+
     std::string passwordHash;
     Account* account;
 
@@ -23,7 +26,7 @@ public:
     int failedAttempts;
     time_t lockTime;
 
-    static std::string encryptDecrypt(const std::string& data); // Make public static to avoid inaccessible error
+    static std::string encryptDecrypt(const std::string& data);
 
 private:
     static std::string hashPassword(const std::string& password);
@@ -31,7 +34,7 @@ private:
 
 class UserRegistration {
 public:
-    bool registerUser(const std::string& username, const std::string& password, const std::string& accNo);
+    bool registerUser(const std::string& username, const std::string& dummy, const std::string& accNo);
     bool authenticateUser(const std::string& username, const std::string& password);
     bool deleteUserByUsername(const std::string& username);
 
@@ -42,7 +45,7 @@ public:
     bool loadUsersFromFile(const std::string& filename);
 
 private:
-    static std::map<std::string, Customer> users;  // static declaration of users map
+    static std::map<std::string, Customer> users;
 };
 
 #endif // SIGNUP_H
