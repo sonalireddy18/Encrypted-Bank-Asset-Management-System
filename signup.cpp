@@ -1,12 +1,15 @@
 #include "signup.h"
 #include "transaction.h"
 
+#include <fstream>
 #include <iostream>
 #include <sstream>
-#include <iomanip>
 #include <ctime>
 
 using namespace std;
+
+// Static users map definition
+map<string, Customer> UserRegistration::users;
 
 // Customer default constructor
 Customer::Customer() : isLocked(false), failedAttempts(0), lockTime(0), account(nullptr) {}
@@ -24,7 +27,7 @@ string Customer::hashPassword(const string& password) {
 
 // Symmetric XOR encryption/decryption for storing password (basic)
 string Customer::encryptDecrypt(const string& data) {
-    char key = 'K'; 
+    char key = 'K';
     string result = data;
     for (size_t i = 0; i < data.size(); ++i) {
         result[i] = data[i] ^ key;
@@ -45,7 +48,7 @@ string Customer::getBankAccountNo() const {
     return "";
 }
 
-// -------- UserRegistration class implementation --------
+// ---- UserRegistration implementations ----
 
 Customer* UserRegistration::getCustomerByUsername(const string& username) {
     auto it = users.find(username);
@@ -114,4 +117,67 @@ bool UserRegistration::deleteUserByUsername(const string& username) {
     }
     cout << "User not found.\n";
     return false;
+}
+
+bool UserRegistration::saveUsersToFile(const string& filename) {
+    try {
+        ofstream ofs(filename, ios::binary);
+        if (!ofs) throw ios_base::failure("Failed to open file for writing");
+
+        stringstream ss;
+        for (const auto& pair : users) {
+            const string& username = pair.first;
+            const Customer& cust = pair.second;
+            string accNum = cust.getBankAccountNo();
+
+            ss << username << "," << cust.passwordHash << "," << accNum << "\n";
+        }
+
+        string encryptedData = Customer::encryptDecrypt(ss.str());
+        ofs.write(encryptedData.c_str(), encryptedData.size());
+        if (!ofs) throw ios_base::failure("Failed to write data to file");
+
+        ofs.close();
+        return true;
+    } catch (const exception& e) {
+        cerr << "Error saving users to file: " << e.what() << endl;
+        return false;
+    }
+}
+
+bool UserRegistration::loadUsersFromFile(const string& filename) {
+    try {
+        ifstream ifs(filename, ios::binary);
+        if (!ifs) return false; // File may not exist on first run
+
+        string encryptedData((istreambuf_iterator<char>(ifs)),
+                             (istreambuf_iterator<char>()));
+        ifs.close();
+
+        string decryptedData = Customer::encryptDecrypt(encryptedData);
+        stringstream ss(decryptedData);
+        string line;
+
+        users.clear();
+
+        while (getline(ss, line)) {
+            stringstream linestream(line);
+            string username, passwordHash, accNum;
+
+            if (!getline(linestream, username, ',')) continue;
+            if (!getline(linestream, passwordHash, ',')) continue;
+            if (!getline(linestream, accNum, ',')) continue;
+
+            Customer cust;
+            cust.passwordHash = passwordHash;
+            cust.account = new BasicAccount(accNum, 0.0);
+
+            users[username] = cust;
+        }
+
+        return true;
+    } catch (const exception& e) {
+        cerr << "Error loading users from file: " << e.what() << endl;
+        return false;
+    }
 }
