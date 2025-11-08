@@ -1,8 +1,10 @@
 #include <iostream>
 #include <limits>
+#include <string>
+
 #include "signup.h"
 #include "transaction.h"
-#include "account.h"
+#include "Accounts.h"
 #include "block.h"
 
 using namespace std;
@@ -19,26 +21,23 @@ void showUserMenu() {
     cout << "1. Transfer by Account Number\n";
     cout << "2. Deposit\n";
     cout << "3. Withdraw\n";
-    cout << "4. Print Transaction History\n";
-    cout << "5. Delete Account\n";
-    cout << "6. Logout\n";
+    cout << "4. View Balance\n";                     // ✅ Added feature
+    cout << "5. Print Transaction History\n";
+    cout << "6. Delete Account\n";
+    cout << "7. Logout\n";
+    cout << "8. Upgrade / Cancel Subscription\n";   // ✅ Added feature
 }
 
 int main() {
     UserRegistration registrationSystem;
     Transaction transactionSystem;
-
-    // Load users from file on program start
-    if (!registrationSystem.loadUsersFromFile("users.dat")) {
-        cerr << "No saved user data found. Starting fresh.\n";
-    } else {
-        cerr << "User data loaded from file.\n";
-    }
-
     string currentUsername;
     bool loggedIn = false;
-    int choice = 0;
 
+    // ✅ Load users from file at startup
+    registrationSystem.loadUsersFromFile("users.dat");
+
+    int choice = 0;
     while (true) {
         if (!loggedIn) {
             showMainMenu();
@@ -51,38 +50,41 @@ int main() {
             }
 
             if (choice == 1) {
-                string username, password, accNo;
+                string username, passwordDummy, accNo;
                 cout << "Enter username: "; cin >> username;
-                cout << "Enter password: "; cin >> password;
                 cout << "Enter Account Number: "; cin >> accNo;
 
-                if (registrationSystem.registerUser(username, password, accNo)) {
-                    // Save users to file on successful registration
-                    if (!registrationSystem.saveUsersToFile("users.dat")) {
-                        cerr << "Warning: Could not save user data after registration.\n";
-                    }
-                }
-
-            } else if (choice == 2) {
+                registrationSystem.registerUser(username, passwordDummy, accNo);
+            } 
+            else if (choice == 2) {
                 string username, password;
                 cout << "Username: "; cin >> username;
                 cout << "Password: "; cin >> password;
+
                 if (registrationSystem.authenticateUser(username, password)) {
                     cout << "Login successful.\n";
                     currentUsername = username;
                     loggedIn = true;
-                } else {
+                } 
+                else {
                     cout << "Login failed.\n";
                 }
+            } 
+            else if (choice == 3) {
+                cout << "Saving users...\n";
 
-            } else if (choice == 3) {
+                // ✅ Save users before exiting
+                registrationSystem.saveUsersToFile("users.dat");
+
                 cout << "Exiting...\n";
                 break;
-
-            } else {
+            } 
+            else {
                 cout << "Invalid choice.\n";
             }
-        } else {
+        }
+
+        else { // ✅ Logged in
             showUserMenu();
             cout << "Enter your choice: ";
             if (!(cin >> choice)) {
@@ -98,6 +100,7 @@ int main() {
                 loggedIn = false;
                 continue;
             }
+
             string accNo = cust->getBankAccountNo();
 
             if (choice == 1) {
@@ -106,43 +109,46 @@ int main() {
                 cout << "Enter recipient account number: "; cin >> toAccNo;
                 cout << "Enter amount to transfer: "; cin >> amount;
                 transactionSystem.transferByAccountNoUserRegistration(registrationSystem, accNo, toAccNo, amount);
-
-            } else if (choice == 2) {
+            } 
+            else if (choice == 2) {
                 double amount;
                 cout << "Enter amount to deposit: "; cin >> amount;
                 transactionSystem.depositUserRegistration(registrationSystem, accNo, amount);
-
-            } else if (choice == 3) {
+            } 
+            else if (choice == 3) {
                 double amount;
                 cout << "Enter amount to withdraw: "; cin >> amount;
                 transactionSystem.withdrawUserRegistration(registrationSystem, accNo, amount);
-
-            } else if (choice == 4) {
+            } 
+            else if (choice == 4) {
+                // ✅ View Balance
+                cout << "Current Balance: " << cust->account->getBal() << "\n";
+            } 
+            else if (choice == 5) {
                 transactionSystem.printTransactionHistory();
-
-            } else if (choice == 5) {
+            } 
+            else if (choice == 6) {
                 cout << "Are you sure you want to delete your account? (y/n): ";
                 char confirm; cin >> confirm;
                 if (confirm == 'y' || confirm == 'Y') {
                     registrationSystem.deleteUserByUsername(currentUsername);
-
-                    // Save changes to file after deleting user
-                    if (!registrationSystem.saveUsersToFile("users.dat")) {
-                        cerr << "Warning: Could not save user data after account deletion.\n";
-                    }
-
                     loggedIn = false;
                     currentUsername.clear();
                 }
-            } else if (choice == 6) {
+            } 
+            else if (choice == 7) {
                 cout << "Logging out...\n";
                 loggedIn = false;
                 currentUsername.clear();
-            } else {
+            }
+            else if (choice == 8) {
+                // ✅ Upgrade account
+                cust->upgradeAccount();
+            }
+            else {
                 cout << "Invalid choice.\n";
             }
         }
     }
-
     return 0;
 }
