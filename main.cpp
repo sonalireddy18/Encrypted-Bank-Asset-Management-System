@@ -8,7 +8,6 @@
 #include "block.h"
 using namespace std;
 
-// Local helper for neat separators
 static void printLine(const string& text) {
     cout << string(text.size(), '-') << "\n";
 }
@@ -36,6 +35,7 @@ void showUserMenu() {
     cout << "6. Delete Account\n";
     cout << "7. Logout\n";
     cout << "8. Upgrade / Cancel Subscription\n";
+    cout << "9. View Blockchain Ledger\n";  
     printLine(title);
     cout << endl;
 }
@@ -46,7 +46,6 @@ int main() {
     string currentUsername;
     bool loggedIn = false;
 
-    // Load users and blockchain (previous transaction history)
     registrationSystem.loadUsersFromFile("users.dat");
     Transaction::loadBlockchainFromFile("transactions.dat");
 
@@ -66,9 +65,8 @@ int main() {
 
             if (choice == 1) {
                 string username, passwordDummy, accNo;
-                string header = "REGISTER NEW USER";
-                cout << "\n" << header << "\n";
-                printLine(header);
+                cout << "\nREGISTER NEW USER\n";
+                printLine("REGISTER NEW USER");
 
                 cout << "Enter username: ";
                 cin >> username;
@@ -76,13 +74,12 @@ int main() {
                 cin >> accNo;
 
                 registrationSystem.registerUser(username, passwordDummy, accNo);
-                printLine(header);
+                printLine("REGISTER NEW USER");
             } 
             else if (choice == 2) {
                 string username, password;
-                string header = "USER LOGIN";
-                cout << "\n" << header << "\n";
-                printLine(header);
+                cout << "\nUSER LOGIN\n";
+                printLine("USER LOGIN");
 
                 cout << "Username: ";
                 cin >> username;
@@ -90,33 +87,27 @@ int main() {
                 cin >> password;
 
                 if (registrationSystem.authenticateUser(username, password)) {
-                    string msg = "Login Successful!";
-                    cout << msg << "\n";
-                    printLine(msg);
+                    cout << "Login Successful!\n";
+                    printLine("Login Successful!");
                     currentUsername = username;
                     loggedIn = true;
                 } 
                 else {
-                    string msg = "Login Failed!";
-                    cout << msg << "\n";
-                    printLine(msg);
+                    cout << "Login Failed!\n";
+                    printLine("Login Failed!");
                 }
             } 
             else if (choice == 3) {
-                string msg = "Exiting System...";
                 cout << "\nSaving users and blockchain...\n";
-                // Save both users and transaction history
                 registrationSystem.saveUsersToFile("users.dat");
                 Transaction::saveBlockchainToFile("transactions.dat");
-
-                cout << msg << "\n";
-                printLine(msg);
+                cout << "Exiting System...\n";
+                printLine("Exiting System...");
                 break;
             } 
             else {
-                string msg = "Invalid Choice!";
-                cout << msg << "\n";
-                printLine(msg);
+                cout << "Invalid Choice!\n";
+                printLine("Invalid Choice!");
             }
         } 
         else {
@@ -125,17 +116,13 @@ int main() {
             if (!(cin >> choice)) {
                 cin.clear();
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                string err = "Invalid input.";
-                cout << err << "\n";
-                printLine(err);
+                cout << "Invalid input.\n";
                 continue;
             }
 
             Customer* cust = registrationSystem.getCustomerByUsername(currentUsername);
             if (!cust) {
-                string msg = "User session error. Logging out...";
-                cout << msg << "\n";
-                printLine(msg);
+                cout << "User session error. Logging out...\n";
                 loggedIn = false;
                 continue;
             }
@@ -144,54 +131,48 @@ int main() {
 
             if (choice == 1) {
                 string toAccNo; double amount;
-                string header = "TRANSFER FUNDS";
-                cout << "\n" << header << "\n";
-                printLine(header);
+                cout << "\nTRANSFER FUNDS\n";
+                printLine("TRANSFER FUNDS");
                 cout << "Enter recipient account number: ";
                 cin >> toAccNo;
                 cout << "Enter amount to transfer: ";
                 cin >> amount;
                 transactionSystem.transferByAccountNoUserRegistration(registrationSystem, accNo, toAccNo, amount);
-                printLine(header);
+                printLine("TRANSFER FUNDS");
             } 
             else if (choice == 2) {
                 double amount;
-                string header = "DEPOSIT MONEY";
-                cout << "\n" << header << "\n";
-                printLine(header);
+                cout << "\nDEPOSIT MONEY\n";
+                printLine("DEPOSIT MONEY");
                 cout << "Enter amount to deposit: ";
                 cin >> amount;
                 transactionSystem.depositUserRegistration(registrationSystem, accNo, amount);
-                printLine(header);
+                printLine("DEPOSIT MONEY");
             } 
             else if (choice == 3) {
                 double amount;
-                string header = "WITHDRAW MONEY";
-                cout << "\n" << header << "\n";
-                printLine(header);
+                cout << "\nWITHDRAW MONEY\n";
+                printLine("WITHDRAW MONEY");
                 cout << "Enter amount to withdraw: ";
                 cin >> amount;
                 transactionSystem.withdrawUserRegistration(registrationSystem, accNo, amount);
-                printLine(header);
+                printLine("WITHDRAW MONEY");
             } 
             else if (choice == 4) {
-                string header = "ACCOUNT BALANCE";
-                cout << "\n" << header << "\n";
-                printLine(header);
+                cout << "\nACCOUNT BALANCE\n";
+                printLine("ACCOUNT BALANCE");
                 cout << "Current Balance: Rs " << fixed << setprecision(2) << cust->account->getBal() << "\n";
-                printLine(header);
+                printLine("ACCOUNT BALANCE");
             } 
             else if (choice == 5) {
-                string header = "TRANSACTION HISTORY";
-                cout << "\n" << header << "\n";
-                printLine(header);
-                transactionSystem.printTransactionHistory();
-                printLine(header);
+                cout << "\nTRANSACTION HISTORY\n";
+                printLine("TRANSACTION HISTORY");
+                transactionSystem.printTransactionHistory(accNo);
+                printLine("TRANSACTION HISTORY");
             } 
             else if (choice == 6) {
-                string header = "DELETE ACCOUNT";
-                cout << "\n" << header << "\n";
-                printLine(header);
+                cout << "\nDELETE ACCOUNT\n";
+                printLine("DELETE ACCOUNT");
                 cout << "Are you sure you want to delete your account? (y/n): ";
                 char confirm;
                 cin >> confirm;
@@ -200,26 +181,28 @@ int main() {
                     loggedIn = false;
                     currentUsername.clear();
                 }
-                printLine(header);
+                printLine("DELETE ACCOUNT");
             } 
             else if (choice == 7) {
-                string msg = "Logging out...";
-                cout << msg << "\n";
-                printLine(msg);
+                cout << "Logging out...\n";
                 loggedIn = false;
                 currentUsername.clear();
             } 
             else if (choice == 8) {
-                string header = "ACCOUNT UPGRADE";
-                cout << "\n" << header << "\n";
-                printLine(header);
+                cout << "\nACCOUNT UPGRADE\n";
+                printLine("ACCOUNT UPGRADE");
                 cust->upgradeAccount();
-                printLine(header);
-            } 
+                printLine("ACCOUNT UPGRADE");
+            }
+            else if (choice == 9) {
+                cout << "\nBLOCKCHAIN LEDGER\n";
+                printLine("BLOCKCHAIN LEDGER");
+                Transaction::printFullBlockchain();
+                printLine("BLOCKCHAIN LEDGER");
+            }
             else {
-                string msg = "Invalid Choice!";
-                cout << msg << "\n";
-                printLine(msg);
+                cout << "Invalid Choice!\n";
+                printLine("Invalid Choice!");
             }
         }
     }
