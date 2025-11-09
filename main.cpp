@@ -21,11 +21,12 @@ void showUserMenu() {
     cout << "1. Transfer by Account Number\n";
     cout << "2. Deposit\n";
     cout << "3. Withdraw\n";
-    cout << "4. View Balance\n";                     // ✅ Added feature
+    cout << "4. View Balance\n";
     cout << "5. Print Transaction History\n";
     cout << "6. Delete Account\n";
     cout << "7. Logout\n";
-    cout << "8. Upgrade / Cancel Subscription\n";   // ✅ Added feature
+    cout << "8. Upgrade / Cancel Subscription\n";
+    cout << "9. Update Phone Number\n"; 
 }
 
 int main() {
@@ -34,7 +35,7 @@ int main() {
     string currentUsername;
     bool loggedIn = false;
 
-    // ✅ Load users from file at startup
+    //Load users from file at startup
     registrationSystem.loadUsersFromFile("users.dat");
 
     int choice = 0;
@@ -73,7 +74,7 @@ int main() {
             else if (choice == 3) {
                 cout << "Saving users...\n";
 
-                // ✅ Save users before exiting
+                //Save users before exiting
                 registrationSystem.saveUsersToFile("users.dat");
 
                 cout << "Exiting...\n";
@@ -84,7 +85,7 @@ int main() {
             }
         }
 
-        else { // ✅ Logged in
+        else { //Logged in
             showUserMenu();
             cout << "Enter your choice: ";
             if (!(cin >> choice)) {
@@ -121,7 +122,7 @@ int main() {
                 transactionSystem.withdrawUserRegistration(registrationSystem, accNo, amount);
             } 
             else if (choice == 4) {
-                // ✅ View Balance
+                //View Balance
                 cout << "Current Balance: " << cust->account->getBal() << "\n";
             } 
             else if (choice == 5) {
@@ -142,8 +143,19 @@ int main() {
                 currentUsername.clear();
             }
             else if (choice == 8) {
-                // ✅ Upgrade account
+                //Upgrade account
                 cust->upgradeAccount();
+            }
+            else if (choice == 9) {
+                //UPDATE PHONE NUMBER
+                string newPhone;
+                cout << "Enter new 10-digit phone: ";
+                cin >> newPhone;
+
+                if (registrationSystem.updatePhoneNumber(currentUsername, newPhone))
+                    cout << "Phone updated successfully.\n";
+                else
+                    cout << "Invalid phone number.\n";
             }
             else {
                 cout << "Invalid choice.\n";
