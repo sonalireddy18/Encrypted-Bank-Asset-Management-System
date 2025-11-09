@@ -33,13 +33,13 @@ Block::Block(int idx, const string& prevHash)
 
 void Block::addTransaction(const string& fromAcc, const string& toAcc, double amount) {
     TransactionRecord tx{fromAcc, toAcc, amount, time(nullptr)};
-    // ✅ Now use operator overloading instead of direct push
+    // Now using operator overloading instead of direct push
     *this += tx;
     // Update hash after adding transaction
     hash = calculateHash();
 }
 
-// ✅ Operator overloading for adding transactions
+// Operator overloading for adding transactions
 Block& Block::operator+=(const TransactionRecord& tx) {
     transactions.push_back(tx);
     return *this;
@@ -85,3 +85,4 @@ void Blockchain::printChain() const {
         block.printBlock();
     }
 }
+
