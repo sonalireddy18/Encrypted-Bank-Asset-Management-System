@@ -7,13 +7,16 @@
 
 class Transaction {
 public:
-    //Blockchain instance to manage all transactions
     static Blockchain blockchain;
 
     static void transferByAccountNoUserRegistration(UserRegistration& userReg, const std::string& fromAccNo, const std::string& toAccNo, double amount);
     static void withdrawUserRegistration(UserRegistration& userReg, const std::string& accNo, double amount);
     static void depositUserRegistration(UserRegistration& userReg, const std::string& accNo, double amount);
     static void printTransactionHistory();
+
+
+    static void saveBlockchainToFile(const std::string& filename);
+    static void loadBlockchainFromFile(const std::string& filename);
 };
 
-#endif //TRANSACTION_H
+#endif // TRANSACTION_H
