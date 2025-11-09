@@ -31,6 +31,7 @@ Block::Block(int idx, const string& prevHash)
     hash = calculateHash();
 }
 
+//Using the operator overloaded += to add transaction
 void Block::addTransaction(const string& fromAcc, const string& toAcc, double amount) {
     TransactionRecord tx{fromAcc, toAcc, amount, time(nullptr)};
     // Now using operator overloading instead of direct push
@@ -50,6 +51,7 @@ string Block::getPreviousHash() const { return previousHash; }
 int Block::getIndex() const { return index; }
 
 void Block::printBlock() const {
+    cout << "\n--------------------------------\n";
     cout << "Block #" << index << "\n";
     cout << "Previous Hash: " << previousHash << "\n";
     cout << "Hash: " << hash << "\n";
@@ -85,4 +87,3 @@ void Blockchain::printChain() const {
         block.printBlock();
     }
 }
-
