@@ -16,15 +16,18 @@ public:
     bool checkPassword(const std::string& pass);
     std::string getBankAccountNo() const;
 
-    // upgrade function exists in another file
     void upgradeAccount();
 
     std::string passwordHash;
-    Account* account;
+    Account<double>* account;
 
     bool isLocked;
     int failedAttempts;
     time_t lockTime;
+
+    // NEW FIELDS
+    std::string fullName;     // First Last
+    std::string phoneNumber;  // 10 digits only
 
     static std::string encryptDecrypt(const std::string& data);
 
@@ -43,6 +46,9 @@ public:
 
     bool saveUsersToFile(const std::string& filename);
     bool loadUsersFromFile(const std::string& filename);
+
+    // NEW
+    bool updatePhoneNumber(const std::string& username, const std::string& newPhone);
 
 private:
     static std::map<std::string, Customer> users;
