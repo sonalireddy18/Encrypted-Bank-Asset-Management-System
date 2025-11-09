@@ -4,55 +4,52 @@
 #include <string>
 #include <vector>
 #include <ctime>
-using namespace std;
 
-//Structure to hold transaction details
 struct TransactionRecord {
-    string fromAccount;
-    string toAccount;
+    std::string fromAccount;
+    std::string toAccount;
     double amount;
-    time_t timestamp;
+    std::time_t timestamp;
 };
 
 class Block {
 public:
-    //Constructor
-    Block(int idx, const string& prevHash);
+    Block(int idx, const std::string& prevHash);
 
-    //Add transaction to block
-    void addTransaction(const string& fromAcc, const string& toAcc, double amount);
+    void addTransaction(const std::string& fromAcc, const std::string& toAcc, double amount);
 
-    string getHash() const;
-    string getPreviousHash() const;
+    std::string getHash() const;
+    std::string getPreviousHash() const;
     int getIndex() const;
+    friend class Transaction;
 
     void printBlock() const;
 
-    //Operator Overloading to add a transaction
+    //  Operator Overloading to add a transaction
     Block& operator+=(const TransactionRecord& tx);
 
 private:
     int index;
-    string previousHash;
-    string hash;
-    time_t timestamp;
-    //Vector for multiple transactions
-    vector<TransactionRecord> transactions;
+    std::string previousHash;
+    std::string hash;
+    std::time_t timestamp;
+    std::vector<TransactionRecord> transactions;
 
-    string calculateHash() const;
+    std::string calculateHash() const;
 };
 
 class Blockchain {
 public:
     Blockchain();
+    friend class Transaction;
 
-    void addTransaction(const string& fromAcc, const string& toAcc, double amount);
+    void addTransaction(const std::string& fromAcc, const std::string& toAcc, double amount);
     void printChain() const;
 
 private:
-    //Vector for chain of blocks
-    vector<Block> chain;
+    std::vector<Block> chain;
+
     Block& getLatestBlock();
 };
 
-#endif //BLOCK_H
+#endif // BLOCK_H
