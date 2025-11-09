@@ -24,6 +24,9 @@ public:
 
     void printBlock() const;
 
+    // ✅ Operator Overloading to add a transaction
+    Block& operator+=(const TransactionRecord& tx);
+
 private:
     int index;
     std::string previousHash;
