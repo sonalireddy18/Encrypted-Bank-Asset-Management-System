@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 
+//Account tier constants
 constexpr int MIN_BASIC  = 0;
 constexpr int MIN_SILVER = 10000;
 constexpr int MIN_GOLD   = 100000;
@@ -12,6 +13,7 @@ constexpr double INT_BASIC  = 2.0;
 constexpr double INT_SILVER = 5.0;
 constexpr double INT_GOLD   = 10.0;
 
+//Function to print account tier information
 inline void printTierInfo() {
     std::cout << "\n--- ACCOUNT TIERS ---\n";
     std::cout << "NORMAL ACCOUNTS:\n";
@@ -31,6 +33,7 @@ template <typename T>
 class Account {
 protected:
     std::string accountNumber;
+    //Using template for balance to allow flexibility
     T balance;
 
 public:
