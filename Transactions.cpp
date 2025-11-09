@@ -7,7 +7,6 @@ using namespace std;
 
 Blockchain Transaction::blockchain;
 
-
 static void printLine(const string& text) {
     cout << string(text.size(), '-') << "\n";
 }
@@ -92,8 +91,67 @@ void Transaction::depositUserRegistration(UserRegistration& ur, const string& a,
     printLine(title);
 }
 
-void Transaction::printTransactionHistory() {
-    blockchain.printChain();
+// updated - Personal transaction history
+void Transaction::printTransactionHistory(const string& accNo) {
+    string title = "TRANSACTION HISTORY FOR ACCOUNT " + accNo;
+    cout << "\n" << title << "\n";
+    printLine(title);
+
+    bool found = false;
+
+    for (const auto& block : blockchain.chain) {
+        for (const auto& tx : block.transactions) {
+            if (tx.fromAccount == accNo || tx.toAccount == accNo) {
+                found = true;
+                cout << "From: " << (tx.fromAccount.empty() ? "(Deposit)" : tx.fromAccount)
+                     << " | To: " << (tx.toAccount.empty() ? "(Withdraw)" : tx.toAccount)
+                     << " | Amount: Rs " << fixed << setprecision(2) << tx.amount
+                     << " | Time: " << ctime(&tx.timestamp);
+            }
+        }
+    }
+
+    if (!found) {
+        cout << "No transactions found for this account.\n";
+    }
+
+    printLine(title);
+}
+
+// New - Full Blockchain Ledger View
+void Transaction::printFullBlockchain() {
+    string title = "FULL BLOCKCHAIN LEDGER";
+    cout << "\n" << title << "\n";
+    cout << string(title.size(), '-') << "\n";
+
+    if (blockchain.chain.empty()) {
+        cout << "Blockchain is empty.\n";
+        return;
+    }
+
+    for (const auto& block : blockchain.chain) {
+        string header = "Block #" + to_string(block.getIndex());
+        cout << "\n" << header << "\n";
+        cout << string(header.size(), '-') << "\n";
+
+        cout << "Previous Hash : " << block.getPreviousHash() << "\n";
+        cout << "Current Hash  : " << block.getHash() << "\n";
+        cout << "Transactions  :\n";
+
+        if (block.transactions.empty()) {
+            cout << "   (No transactions in this block)\n";
+        } else {
+            for (const auto& tx : block.transactions) {
+                cout << "   From: " << (tx.fromAccount.empty() ? "(Deposit)" : tx.fromAccount)
+                     << " | To: " << (tx.toAccount.empty() ? "(Withdraw)" : tx.toAccount)
+                     << " | Amount: Rs " << fixed << setprecision(2) << tx.amount
+                     << " | Time: " << ctime(&tx.timestamp);
+            }
+        }
+        cout << string(header.size(), '-') << "\n";
+    }
+
+    cout << string(title.size(), '-') << "\n";
 }
 
 // Save blockchain to file
@@ -115,7 +173,6 @@ void Transaction::saveBlockchainToFile(const string& filename) {
     ofs.write(encrypted.c_str(), encrypted.size());
     ofs.close();
 }
-
 
 void Transaction::loadBlockchainFromFile(const string& filename) {
     ifstream ifs(filename, ios::binary);
