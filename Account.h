@@ -25,45 +25,49 @@ inline void printTierInfo() {
     std::cout << "--------------------\n\n";
 }
 
-// BASE ACCOUNT
+
+// Base Account Template
+template <typename T>
 class Account {
 protected:
     std::string accountNumber;
-    double balance;
+    T balance;
 
 public:
-    Account(const std::string& accNum = "", double bal = 0.0);
+    Account(const std::string& accNum = "", T bal = 0.0);
     virtual ~Account() {}
-    void setBal(double bal);
-    double getBal() const;
+    void setBal(T bal);
+    T getBal() const;
     std::string getAccNum() const;
     virtual void display() const;
 };
 
-// NORMAL ACCOUNTS
-class BasicAccount : public Account {
+
+// Derived Normal Accounts
+class BasicAccount : public Account<double> {
 public:
     static constexpr int MinBal = MIN_BASIC;
     BasicAccount(const std::string&, double);
     void display() const override;
 };
 
-class SilverAccount : public Account {
+class SilverAccount : public Account<double> {
 public:
     static constexpr int MinBal = MIN_SILVER;
     SilverAccount(const std::string&, double);
     void display() const override;
 };
 
-class GoldAccount : public Account {
+class GoldAccount : public Account<double> {
 public:
     static constexpr int MinBal = MIN_GOLD;
     GoldAccount(const std::string&, double);
     void display() const override;
 };
 
-// SAVINGS ACCOUNTS
-class SavingsAccount : public Account {
+
+// Derived Savings Accounts
+class SavingsAccount : public Account<double> {
 protected:
     double interestRate;
 public:
@@ -93,5 +97,8 @@ public:
     SavingsGold(const std::string&, double);
     void display() const override;
 };
+
+// Explicit template instantiation
+extern template class Account<double>;
 
 #endif
