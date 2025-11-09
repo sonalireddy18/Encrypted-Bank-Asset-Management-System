@@ -33,22 +33,21 @@ Block::Block(int idx, const string& prevHash)
 
 void Block::addTransaction(const string& fromAcc, const string& toAcc, double amount) {
     TransactionRecord tx{fromAcc, toAcc, amount, time(nullptr)};
-    transactions.push_back(tx);
+    // ✅ Now use operator overloading instead of direct push
+    *this += tx;
     // Update hash after adding transaction
     hash = calculateHash();
 }
 
-string Block::getHash() const {
-    return hash;
+// ✅ Operator overloading for adding transactions
+Block& Block::operator+=(const TransactionRecord& tx) {
+    transactions.push_back(tx);
+    return *this;
 }
 
-string Block::getPreviousHash() const {
-    return previousHash;
-}
-
-int Block::getIndex() const {
-    return index;
-}
+string Block::getHash() const { return hash; }
+string Block::getPreviousHash() const { return previousHash; }
+int Block::getIndex() const { return index; }
 
 void Block::printBlock() const {
     cout << "Block #" << index << "\n";
@@ -57,7 +56,8 @@ void Block::printBlock() const {
     cout << "Timestamp: " << ctime(&timestamp);
     cout << "Transactions:\n";
     for (const auto& tx : transactions) {
-        cout << "  From: " << tx.fromAccount << ", To: " << tx.toAccount << ", Amount: " << tx.amount << ", Time: " << ctime(&tx.timestamp);
+        cout << "  From: " << tx.fromAccount << ", To: " << tx.toAccount
+             << ", Amount: " << tx.amount << ", Time: " << ctime(&tx.timestamp);
     }
     cout << "--------------------------------\n";
 }
