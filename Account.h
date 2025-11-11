@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+using namespace std;
 
 //Account tier constants
 constexpr int MIN_BASIC  = 0;
@@ -15,16 +16,16 @@ constexpr double INT_GOLD   = 10.0;
 
 //Function to print account tier information
 inline void printTierInfo() {
-    std::cout << "\n--- ACCOUNT TIERS ---\n";
-    std::cout << "NORMAL ACCOUNTS:\n";
-    std::cout << " Basic  : MinBal " << MIN_BASIC  << "\n";
-    std::cout << " Silver : MinBal " << MIN_SILVER << "\n";
-    std::cout << " Gold   : MinBal " << MIN_GOLD   << "\n\n";
-    std::cout << "SAVINGS ACCOUNTS:\n";
-    std::cout << " Basic  : MinBal " << MIN_BASIC  << ", Interest " << INT_BASIC  << "%\n";
-    std::cout << " Silver : MinBal " << MIN_SILVER << ", Interest " << INT_SILVER << "%\n";
-    std::cout << " Gold   : MinBal " << MIN_GOLD   << ", Interest " << INT_GOLD   << "%\n";
-    std::cout << "--------------------\n\n";
+    cout << "\n--- ACCOUNT TIERS ---\n";
+    cout << "NORMAL ACCOUNTS:\n";
+    cout << " Basic  : MinBal " << MIN_BASIC  << "\n";
+    cout << " Silver : MinBal " << MIN_SILVER << "\n";
+    cout << " Gold   : MinBal " << MIN_GOLD   << "\n\n";
+    cout << "SAVINGS ACCOUNTS:\n";
+    cout << " Basic  : MinBal " << MIN_BASIC  << ", Interest " << INT_BASIC  << "%\n";
+    cout << " Silver : MinBal " << MIN_SILVER << ", Interest " << INT_SILVER << "%\n";
+    cout << " Gold   : MinBal " << MIN_GOLD   << ", Interest " << INT_GOLD   << "%\n";
+    cout << "--------------------\n\n";
 }
 
 
@@ -32,16 +33,16 @@ inline void printTierInfo() {
 template <typename T>
 class Account {
 protected:
-    std::string accountNumber;
+    string accountNumber;
     //Using template for balance to allow flexibility
     T balance;
 
 public:
-    Account(const std::string& accNum = "", T bal = 0.0);
+    Account(const string& accNum = "", T bal = 0.0);
     virtual ~Account() {}
     void setBal(T bal);
     T getBal() const;
-    std::string getAccNum() const;
+    string getAccNum() const;
     virtual void display() const;
 };
 
@@ -50,21 +51,21 @@ public:
 class BasicAccount : public Account<double> {
 public:
     static constexpr int MinBal = MIN_BASIC;
-    BasicAccount(const std::string&, double);
+    BasicAccount(const string&, double);
     void display() const override;
 };
 
 class SilverAccount : public Account<double> {
 public:
     static constexpr int MinBal = MIN_SILVER;
-    SilverAccount(const std::string&, double);
+    SilverAccount(const string&, double);
     void display() const override;
 };
 
 class GoldAccount : public Account<double> {
 public:
     static constexpr int MinBal = MIN_GOLD;
-    GoldAccount(const std::string&, double);
+    GoldAccount(const string&, double);
     void display() const override;
 };
 
@@ -74,7 +75,7 @@ class SavingsAccount : public Account<double> {
 protected:
     double interestRate;
 public:
-    SavingsAccount(const std::string&, double, double);
+    SavingsAccount(const string&, double, double);
     double getInterestRate() const;
     void applyInterest();
     void display() const override;
@@ -83,21 +84,21 @@ public:
 class SavingsBasic : public SavingsAccount {
 public:
     static constexpr int MinBal = MIN_BASIC;
-    SavingsBasic(const std::string&, double);
+    SavingsBasic(const string&, double);
     void display() const override;
 };
 
 class SavingsSilver : public SavingsAccount {
 public:
     static constexpr int MinBal = MIN_SILVER;
-    SavingsSilver(const std::string&, double);
+    SavingsSilver(const string&, double);
     void display() const override;
 };
 
 class SavingsGold : public SavingsAccount {
 public:
     static constexpr int MinBal = MIN_GOLD;
-    SavingsGold(const std::string&, double);
+    SavingsGold(const string&, double);
     void display() const override;
 };
 
