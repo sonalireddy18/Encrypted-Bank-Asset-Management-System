@@ -3,7 +3,7 @@
 
 #include <string>
 #include <map>
-#include "Accounts.h"
+#include "account.h"
 
 const int MAX_FAILED_ATTEMPTS = 3; //before lock
 const int LOCK_DURATION = 300; //seconds
@@ -16,20 +16,22 @@ public:
     bool checkPassword(const std::string& pass);
     std::string getBankAccountNo() const;
 
+    // 🔥 UPGRADE / CANCEL subscription function
     void upgradeAccount();
 
     std::string passwordHash;
-    //Pointer for template base account
+
+    // Pointer to Account (Normal or Savings)
     Account<double>* account;
 
     bool isLocked;
     int failedAttempts;
     time_t lockTime;
 
-    std::string fullName;     //First Last
-    std::string phoneNumber;  //10 digits only
+    std::string fullName;     // First Last
+    std::string phoneNumber;  // 10 digits
 
-    //Ecrypt/Decrypt function for file storage and retrieval
+    // Encrypt/Decrypt for file storage
     static std::string encryptDecrypt(const std::string& data);
 
 private:
@@ -42,7 +44,6 @@ public:
     bool authenticateUser(const std::string& username, const std::string& password);
     bool deleteUserByUsername(const std::string& username);
 
-    //Pointer retrieval functions for transactions
     Customer* getCustomerByUsername(const std::string& username);
     Customer* getCustomerByAccountNo(const std::string& accNo);
 
@@ -55,4 +56,4 @@ private:
     static std::map<std::string, Customer> users;
 };
 
-#endif //SIGNUP_H
+#endif // SIGNUP_H
