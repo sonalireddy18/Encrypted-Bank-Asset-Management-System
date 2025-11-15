@@ -46,7 +46,7 @@ string Customer::getBankAccountNo() const {
 
 
 // -----------------------------------------------------
-// 🔥🔥 FINAL UPGRADE ACCOUNT IMPLEMENTATION (Option C)
+// UPGRADE ACCOUNT (Option C)
 // -----------------------------------------------------
 void Customer::upgradeAccount() {
     cout << "\n--- SUBSCRIPTION OPTIONS ---\n";
@@ -72,21 +72,19 @@ void Customer::upgradeAccount() {
     string acc = account->getAccNum();
     double bal = account->getBal();
 
-    // Helper to enforce minimum balance WITH forced deposit
+    // enforce min balance
     auto enforceMinBalance = [&](int minBal) {
         if (bal < minBal) {
-            cout << "\nYour current balance (" << bal << ") is below the required minimum (" 
+            cout << "\nYour current balance (" << bal << ") is below the minimum (" 
                  << minBal << ").\n";
-            cout << "You must deposit at least " << (minBal - bal) << " to continue.\n";
+            cout << "You must deposit at least " << (minBal - bal) << ".\n";
 
             double dep = 0;
             do {
-                cout << "Enter deposit amount: ";
+                cout << "Enter deposit: ";
                 cin >> dep;
-                if (dep < (minBal - bal)) {
-                    cout << "Deposit not enough. NOT DEPOSITED. Please deposit at least " 
-                         << (minBal - bal) << ".\n";
-                }
+                if (dep < (minBal - bal))
+                    cout << "Deposit not enough.\n";
             } while (dep < (minBal - bal));
 
             bal += dep;
@@ -95,53 +93,47 @@ void Customer::upgradeAccount() {
         }
     };
 
-    // -----------------------------------------------------
-    // SAVINGS ACCOUNT HANDLING
-    // -----------------------------------------------------
+    // SAVINGS
     if (isSavings) {
-
-        if (ch == 1) {  // Savings → Silver
+        if (ch == 1) {
             enforceMinBalance(SavingsSilver::MinBal);
             delete account;
             account = new SavingsSilver(acc, bal);
-            cout << "Account upgraded to SAVINGS SILVER.\n";
+            cout << "Upgraded to SAVINGS SILVER.\n";
         }
-        else if (ch == 2) {  // Savings → Gold
+        else if (ch == 2) {
             enforceMinBalance(SavingsGold::MinBal);
             delete account;
             account = new SavingsGold(acc, bal);
-            cout << "Account upgraded to SAVINGS GOLD.\n";
+            cout << "Upgraded to SAVINGS GOLD.\n";
         }
-        else if (ch == 3) {  // Cancel → Savings Basic
+        else if (ch == 3) {
             delete account;
             account = new SavingsBasic(acc, bal);
-            cout << "Subscription cancelled. You are now on SAVINGS BASIC.\n";
+            cout << "Downgraded to SAVINGS BASIC.\n";
         }
-        else {
-            cout << "Invalid choice.\n";
-        }
+        else cout << "Invalid choice.\n";
+
         return;
     }
 
-    // -----------------------------------------------------
-    // NORMAL ACCOUNT HANDLING
-    // -----------------------------------------------------
-    if (ch == 1) {  // Normal → Silver
+    // NORMAL
+    if (ch == 1) {
         enforceMinBalance(SilverAccount::MinBal);
         delete account;
         account = new SilverAccount(acc, bal);
-        cout << "Account upgraded to SILVER.\n";
+        cout << "Upgraded to SILVER.\n";
     }
-    else if (ch == 2) {  // Normal → Gold
+    else if (ch == 2) {
         enforceMinBalance(GoldAccount::MinBal);
         delete account;
         account = new GoldAccount(acc, bal);
-        cout << "Account upgraded to GOLD.\n";
+        cout << "Upgraded to GOLD.\n";
     }
-    else if (ch == 3) {  // Cancel → Basic
+    else if (ch == 3) {
         delete account;
         account = new BasicAccount(acc, bal);
-        cout << "Subscription cancelled. You are now on BASIC.\n";
+        cout << "Downgraded to BASIC.\n";
     }
     else {
         cout << "Invalid choice.\n";
@@ -246,6 +238,10 @@ bool UserRegistration::registerUser(const string& username, const string&, const
         c.account->setBal(dep);
     }
 
+    // Initialize salary + bills empty
+    c.salary.amount = 0;
+    c.salary.frequency = "none";
+
     users[username] = c;
     cout << "User Registered Successfully.\n";
     return true;
@@ -322,7 +318,7 @@ bool UserRegistration::deleteUserByUsername(const string& username) {
 
 
 // -----------------------------------------------------
-// SAVE USERS TO FILE
+// SAVE USERS TO FILE (INCLUDES BUDGET)
 // -----------------------------------------------------
 bool UserRegistration::saveUsersToFile(const string& filename) {
     try {
@@ -340,6 +336,7 @@ bool UserRegistration::saveUsersToFile(const string& filename) {
             if (dynamic_cast<SilverAccount*>(c.account) || dynamic_cast<SavingsSilver*>(c.account)) tier = 2;
             else if (dynamic_cast<GoldAccount*>(c.account) || dynamic_cast<SavingsGold*>(c.account)) tier = 3;
 
+            // BASIC INFO
             ss << p.first << ","
                << c.passwordHash << ","
                << c.getBankAccountNo() << ","
@@ -347,7 +344,18 @@ bool UserRegistration::saveUsersToFile(const string& filename) {
                << tier << ","
                << c.account->getBal() << ","
                << c.fullName << ","
-               << c.phoneNumber << "\n";
+               << c.phoneNumber << ",";
+
+            // BILLS
+            ss << c.bills.size() << ",";
+            for (auto& b : c.bills) {
+                ss << b.name << "|" << b.amount << "|" << b.frequency << ";";
+            }
+            ss << ",";
+
+            // SALARY
+            ss << c.salary.amount << "," 
+               << c.salary.frequency << "\n";
         }
 
         string encrypted = Customer::encryptDecrypt(ss.str());
@@ -362,7 +370,7 @@ bool UserRegistration::saveUsersToFile(const string& filename) {
 
 
 // -----------------------------------------------------
-// LOAD USERS FROM FILE
+// LOAD USERS FROM FILE (INCLUDES BUDGET)
 // -----------------------------------------------------
 bool UserRegistration::loadUsersFromFile(const string& filename) {
     try {
@@ -384,6 +392,7 @@ bool UserRegistration::loadUsersFromFile(const string& filename) {
 
             stringstream l(line);
             string user, pass, acc, tStr, tierStr, balStr, nameStr, phoneStr;
+            string billsCountStr, billsDataStr, salAmtStr, salFreqStr;
 
             getline(l, user, ',');
             getline(l, pass, ',');
@@ -394,6 +403,11 @@ bool UserRegistration::loadUsersFromFile(const string& filename) {
             getline(l, nameStr, ',');
             getline(l, phoneStr, ',');
 
+            getline(l, billsCountStr, ',');
+            getline(l, billsDataStr, ',');
+            getline(l, salAmtStr, ',');
+            getline(l, salFreqStr, ',');
+
             Customer c;
             c.passwordHash = pass;
             c.fullName = nameStr;
@@ -403,6 +417,7 @@ bool UserRegistration::loadUsersFromFile(const string& filename) {
             int tier = stoi(tierStr);
             double bal = stod(balStr);
 
+            // ACCOUNT
             if (isSavings) {
                 if (tier == 1) c.account = new SavingsBasic(acc, bal);
                 else if (tier == 2) c.account = new SavingsSilver(acc, bal);
@@ -412,6 +427,33 @@ bool UserRegistration::loadUsersFromFile(const string& filename) {
                 else if (tier == 2) c.account = new SilverAccount(acc, bal);
                 else c.account = new GoldAccount(acc, bal);
             }
+
+            // BILLS
+            int billCount = stoi(billsCountStr);
+            stringstream bss(billsDataStr);
+            string entry;
+
+            while (getline(bss, entry, ';')) {
+                if (entry.empty()) continue;
+
+                stringstream one(entry);
+                string name, amountStr, freqStr;
+
+                getline(one, name, '|');
+                getline(one, amountStr, '|');
+                getline(one, freqStr, '|');
+
+                Bill bill;
+                bill.name = name;
+                bill.amount = stod(amountStr);
+                bill.frequency = freqStr;
+
+                c.bills.push_back(bill);
+            }
+
+            // SALARY
+            c.salary.amount = stod(salAmtStr);
+            c.salary.frequency = salFreqStr;
 
             users[user] = c;
         }
