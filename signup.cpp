@@ -84,7 +84,7 @@ void Customer::upgradeAccount() {
                 cout << "Enter deposit amount: ";
                 cin >> dep;
                 if (dep < (minBal - bal)) {
-                    cout << "Deposit not enough. Please deposit at least " 
+                    cout << "Deposit not enough. NOT DEPOSITED. Please deposit at least " 
                          << (minBal - bal) << ".\n";
                 }
             } while (dep < (minBal - bal));
