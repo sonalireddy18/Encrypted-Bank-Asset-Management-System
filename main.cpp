@@ -6,6 +6,7 @@
 #include "transaction.h"
 #include "account.h"
 #include "block.h"
+#include "budget.h"
 
 using namespace std;
 
@@ -38,6 +39,7 @@ void showUserMenu(const string& titleText) {
     cout << "7. Logout\n";
     cout << "8. Upgrade / Cancel Subscription\n";
     cout << "9. View Blockchain Ledger\n";
+    cout << "10. Budget\n"; 
     printLine(title);
     cout << endl;
 }
@@ -45,6 +47,7 @@ void showUserMenu(const string& titleText) {
 int main() {
     UserRegistration registrationSystem;
     Transaction transactionSystem;
+    BudgetManager budget; 
     string currentUsername;
     bool loggedIn = false;
 
@@ -56,7 +59,7 @@ int main() {
     while (true) {
 
         // -------------------------------------------------------
-        // NOT LOGGED IN
+        //NOT LOGGED IN
         // -------------------------------------------------------
         if (!loggedIn) {
             showMainMenu();
@@ -72,7 +75,7 @@ int main() {
             }
 
             if (choice == 1) {
-                string username, passwordDummy, accNo;
+                string username, accNo;
                 cout << "\nREGISTER NEW USER\n";
                 printLine("REGISTER NEW USER");
 
@@ -81,7 +84,8 @@ int main() {
                 cout << "Enter Account Number: ";
                 cin >> accNo;
 
-                registrationSystem.registerUser(username, passwordDummy, accNo);
+                // registerUser reads the rest (password, full name, etc.) itself
+                registrationSystem.registerUser(username, "", accNo);
                 printLine("REGISTER NEW USER");
             }
             else if (choice == 2) {
@@ -119,9 +123,9 @@ int main() {
             }
         }
 
-        // -------------------------------------------------------
-        // LOGGED IN
-        // -------------------------------------------------------
+        //-------------------------------------------------------
+        //LOGGED IN
+        //-------------------------------------------------------
         else {
 
             Customer* cust = registrationSystem.getCustomerByUsername(currentUsername);
@@ -131,9 +135,9 @@ int main() {
                 continue;
             }
 
-            // -------------------------------------------------------
-            // BUILD DYNAMIC DASHBOARD TITLE
-            // -------------------------------------------------------
+            //-------------------------------------------------------
+            //DYNAMIC DASHBOARD TITLE
+            //-------------------------------------------------------
             string accType;
 
             if (dynamic_cast<GoldAccount*>(cust->account) || dynamic_cast<SavingsGold*>(cust->account))
@@ -163,9 +167,9 @@ int main() {
             string accNo = cust->getBankAccountNo();
 
 
-            // -------------------------------------------------------
-            // USER MENU OPTIONS
-            // -------------------------------------------------------
+            //-------------------------------------------------------
+            //USER MENU OPTIONS
+            //-------------------------------------------------------
 
             if (choice == 1) {
                 string toAccNo; double amount;
@@ -260,7 +264,8 @@ int main() {
                 cout << "\nACCOUNT UPGRADE\n";
                 printLine("ACCOUNT UPGRADE");
 
-                cust->upgradeAccount();   // 🔥 Fully implemented
+                // Call the upgrade implementation in signup.cpp
+                cust->upgradeAccount();   
 
                 printLine("ACCOUNT UPGRADE");
             }
@@ -272,6 +277,10 @@ int main() {
                 Transaction::printFullBlockchain();
 
                 printLine("BLOCKCHAIN LEDGER");
+            }
+
+            else if (choice == 10) { 
+                budget.showBudgetMenu(cust, registrationSystem);
             }
 
             else {
