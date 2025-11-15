@@ -3,10 +3,12 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include "account.h"
+#include "budget.h"
 
-const int MAX_FAILED_ATTEMPTS = 3; //before lock
-const int LOCK_DURATION = 300; //seconds
+const int MAX_FAILED_ATTEMPTS = 3;
+const int LOCK_DURATION = 300;
 
 class Customer {
 public:
@@ -16,22 +18,25 @@ public:
     bool checkPassword(const std::string& pass);
     std::string getBankAccountNo() const;
 
-    // 🔥 UPGRADE / CANCEL subscription function
     void upgradeAccount();
 
     std::string passwordHash;
-
-    // Pointer to Account (Normal or Savings)
     Account<double>* account;
 
     bool isLocked;
     int failedAttempts;
     time_t lockTime;
 
-    std::string fullName;     // First Last
-    std::string phoneNumber;  // 10 digits
+    std::string fullName;
+    std::string phoneNumber;
 
-    // Encrypt/Decrypt for file storage
+    // ----------------------------------------------------
+    // ADD THESE (Budget module data)
+    // ----------------------------------------------------
+    std::vector<Bill> bills;
+    SalaryInfo salary;
+    // ----------------------------------------------------
+
     static std::string encryptDecrypt(const std::string& data);
 
 private:
@@ -56,4 +61,4 @@ private:
     static std::map<std::string, Customer> users;
 };
 
-#endif // SIGNUP_H
+#endif
