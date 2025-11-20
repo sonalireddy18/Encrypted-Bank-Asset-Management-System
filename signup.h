@@ -30,12 +30,10 @@ public:
     std::string fullName;
     std::string phoneNumber;
 
-    // ----------------------------------------------------
-    // ADD THESE (Budget module data)
-    // ----------------------------------------------------
+   
     std::vector<Bill> bills;
     SalaryInfo salary;
-    // ----------------------------------------------------
+    
 
     static std::string encryptDecrypt(const std::string& data);
 
