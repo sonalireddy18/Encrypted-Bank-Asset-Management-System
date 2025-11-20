@@ -8,16 +8,19 @@
 
 using namespace std;
 
-// static map initialization
+//Initialize static user map
 map<string, Customer> UserRegistration::users;
 
+//Customer constructor
 Customer::Customer()
     : isLocked(false), failedAttempts(0), lockTime(0), account(nullptr) {}
 
 
-// -----------------------------------------------------
-// PASSWORD HASH + ENCRYPTION
-// -----------------------------------------------------
+//===========================================================
+// PASSWORD HASH AND SIMPLE ENCRYPTION
+//===========================================================
+
+//Hash password using simple function
 string Customer::hashPassword(const string& password) {
     unsigned int hash = 5381;
     for (char c : password)
@@ -26,6 +29,7 @@ string Customer::hashPassword(const string& password) {
     return ss.str();
 }
 
+//Encrypt or decrypt using XOR
 string Customer::encryptDecrypt(const string& data) {
     char key = 'K';
     string result = data;
@@ -34,31 +38,39 @@ string Customer::encryptDecrypt(const string& data) {
     return result;
 }
 
+//Set password by hashing
 void Customer::setPassword(string pass) { passwordHash = hashPassword(pass); }
 
+//Check password match
 bool Customer::checkPassword(const string& pass) {
     return passwordHash == hashPassword(pass);
 }
 
+//Get account number if available
 string Customer::getBankAccountNo() const {
     return account ? account->getAccNum() : "";
 }
 
 
-// -----------------------------------------------------
-// UPGRADE ACCOUNT (Option C)
-// -----------------------------------------------------
+//===========================================================
+// ACCOUNT UPGRADE OR DOWNGRADE
+//===========================================================
+
+//Upgrade or downgrade subscription tier
 void Customer::upgradeAccount() {
     cout << "\n--- SUBSCRIPTION OPTIONS ---\n";
 
     bool isSavings = dynamic_cast<SavingsAccount*>(account) != nullptr;
 
+    //Menu for savings accounts
     if (isSavings) {
         cout << "You have a SAVINGS account.\n";
         cout << "1. Upgrade to Savings Silver\n";
         cout << "2. Upgrade to Savings Gold\n";
         cout << "3. Cancel Subscription (Downgrade to Savings Basic)\n";
-    } else {
+    } 
+    //Menu for normal accounts
+    else {
         cout << "You have a NORMAL account.\n";
         cout << "1. Upgrade to Silver\n";
         cout << "2. Upgrade to Gold\n";
@@ -72,7 +84,7 @@ void Customer::upgradeAccount() {
     string acc = account->getAccNum();
     double bal = account->getBal();
 
-    // enforce min balance
+    //Lambda to enforce minimum balance
     auto enforceMinBalance = [&](int minBal) {
         if (bal < minBal) {
             cout << "\nYour current balance (" << bal << ") is below the minimum (" 
@@ -93,7 +105,7 @@ void Customer::upgradeAccount() {
         }
     };
 
-    // SAVINGS
+    //Handle savings account tier change
     if (isSavings) {
         if (ch == 1) {
             enforceMinBalance(SavingsSilver::MinBal);
@@ -117,7 +129,7 @@ void Customer::upgradeAccount() {
         return;
     }
 
-    // NORMAL
+    //Handle normal account tier change
     if (ch == 1) {
         enforceMinBalance(SilverAccount::MinBal);
         delete account;
@@ -141,17 +153,20 @@ void Customer::upgradeAccount() {
 }
 
 
-// -----------------------------------------------------
-// REGISTER USER
-// -----------------------------------------------------
+//===========================================================
+// REGISTER NEW USER
+//===========================================================
+
+//Registration process for new users
 bool UserRegistration::registerUser(const string& username, const string&, const string& accNo) {
 
+    //Check if username exists
     if (users.find(username) != users.end()) {
         cout << "Username already exists.\n";
         return false;
     }
 
-    // FULL NAME
+    //Full name input
     string fullName;
     cout << "Enter Full Name (First Last): ";
     cin.ignore();
@@ -161,7 +176,7 @@ bool UserRegistration::registerUser(const string& username, const string&, const
         getline(cin, fullName);
     }
 
-    // PHONE
+    //Phone number input
     string phone;
     cout << "Enter 10-digit phone number: ";
     cin >> phone;
@@ -170,11 +185,12 @@ bool UserRegistration::registerUser(const string& username, const string&, const
         cin >> phone;
     }
 
-    // PASSWORD
+    //Password input
     string p1, p2;
     cout << "Enter password (1 upper, 1 lower, 1 digit, 8+ chars): ";
     cin >> p1;
 
+    //Password validation lambda
     auto validPassword = [&](string p) {
         if (p.length() < 8) return false;
         bool up=0, low=0, dig=0;
@@ -186,6 +202,7 @@ bool UserRegistration::registerUser(const string& username, const string&, const
         return up && low && dig;
     };
 
+    //Ensure password meets rules
     while (!validPassword(p1)) {
         cout << "Invalid. Re-enter: ";
         cin >> p1;
@@ -199,13 +216,13 @@ bool UserRegistration::registerUser(const string& username, const string&, const
         return false;
     }
 
-    // CREATE CUSTOMER
+    //Create customer object
     Customer c;
     c.setPassword(p1);
     c.fullName = fullName;
     c.phoneNumber = phone;
 
-    // ACCOUNT TYPE
+    //Account type and tier
     printTierInfo();
     int type, tier;
     cout << "Account type (1=Normal, 2=Savings): ";
@@ -213,6 +230,7 @@ bool UserRegistration::registerUser(const string& username, const string&, const
     cout << "Tier (1=Basic, 2=Silver, 3=Gold): ";
     cin >> tier;
 
+    //Assign account based on selection
     if (type == 2) {
         if (tier == 1) c.account = new SavingsBasic(accNo, 0);
         else if (tier == 2) c.account = new SavingsSilver(accNo, 0);
@@ -223,7 +241,7 @@ bool UserRegistration::registerUser(const string& username, const string&, const
         else c.account = new GoldAccount(accNo, 0);
     }
 
-    // MINIMUM INITIAL DEPOSIT
+    //Minimum initial deposit check
     double minReq = 0;
     if (tier == 2) minReq = MIN_SILVER;
     else if (tier == 3) minReq = MIN_GOLD;
@@ -238,19 +256,22 @@ bool UserRegistration::registerUser(const string& username, const string&, const
         c.account->setBal(dep);
     }
 
-    // Initialize salary + bills empty
+    //Initialize salary and bills
     c.salary.amount = 0;
     c.salary.frequency = "none";
 
+    //Store user
     users[username] = c;
     cout << "User Registered Successfully.\n";
     return true;
 }
 
 
-// -----------------------------------------------------
-// AUTHENTICATION
-// -----------------------------------------------------
+//===========================================================
+// AUTHENTICATE USER
+//===========================================================
+
+//Login authentication
 bool UserRegistration::authenticateUser(const string& username, const string& password) {
     Customer* c = getCustomerByUsername(username);
     if (!c) {
@@ -258,6 +279,7 @@ bool UserRegistration::authenticateUser(const string& username, const string& pa
         return false;
     }
 
+    //Check lock status
     if (c->isLocked) {
         time_t now = time(nullptr);
         if (difftime(now, c->lockTime) >= LOCK_DURATION) {
@@ -269,11 +291,13 @@ bool UserRegistration::authenticateUser(const string& username, const string& pa
         }
     }
 
+    //Check password match
     if (c->checkPassword(password)) {
         c->failedAttempts = 0;
         return true;
     }
 
+    //Handle failed attempts
     cout << "Incorrect password.\n";
     if (++c->failedAttempts >= MAX_FAILED_ATTEMPTS) {
         c->isLocked = true;
@@ -284,15 +308,18 @@ bool UserRegistration::authenticateUser(const string& username, const string& pa
 }
 
 
-// -----------------------------------------------------
+//===========================================================
 // GETTERS
-// -----------------------------------------------------
+//===========================================================
+
+//Get user by username
 Customer* UserRegistration::getCustomerByUsername(const string& username) {
     auto it = users.find(username);
     if (it != users.end()) return &it->second;
     return nullptr;
 }
 
+//Get user by account number
 Customer* UserRegistration::getCustomerByAccountNo(const string& accNo) {
     for (auto& p : users)
         if (p.second.getBankAccountNo() == accNo)
@@ -301,9 +328,11 @@ Customer* UserRegistration::getCustomerByAccountNo(const string& accNo) {
 }
 
 
-// -----------------------------------------------------
+//===========================================================
 // DELETE USER
-// -----------------------------------------------------
+//===========================================================
+
+//Delete a user account
 bool UserRegistration::deleteUserByUsername(const string& username) {
     auto it = users.find(username);
     if (it != users.end()) {
@@ -317,9 +346,11 @@ bool UserRegistration::deleteUserByUsername(const string& username) {
 }
 
 
-// -----------------------------------------------------
-// SAVE USERS TO FILE (INCLUDES BUDGET)
-// -----------------------------------------------------
+//===========================================================
+// SAVE USERS TO FILE (INCLUDES BILLS AND SALARY)
+//===========================================================
+
+//Save users to encrypted file
 bool UserRegistration::saveUsersToFile(const string& filename) {
     try {
         ofstream ofs(filename, ios::binary);
@@ -327,16 +358,19 @@ bool UserRegistration::saveUsersToFile(const string& filename) {
 
         stringstream ss;
 
+        //Write each user
         for (auto& p : users) {
             Customer& c = p.second;
 
+            //Account type flag
             char type = (dynamic_cast<SavingsAccount*>(c.account) ? 'S' : 'N');
 
+            //Account tier
             int tier = 1;
             if (dynamic_cast<SilverAccount*>(c.account) || dynamic_cast<SavingsSilver*>(c.account)) tier = 2;
             else if (dynamic_cast<GoldAccount*>(c.account) || dynamic_cast<SavingsGold*>(c.account)) tier = 3;
 
-            // BASIC INFO
+            //Basic data
             ss << p.first << ","
                << c.passwordHash << ","
                << c.getBankAccountNo() << ","
@@ -346,18 +380,19 @@ bool UserRegistration::saveUsersToFile(const string& filename) {
                << c.fullName << ","
                << c.phoneNumber << ",";
 
-            // BILLS
+            //Bill data
             ss << c.bills.size() << ",";
             for (auto& b : c.bills) {
                 ss << b.name << "|" << b.amount << "|" << b.frequency << ";";
             }
             ss << ",";
 
-            // SALARY
+            //Salary data
             ss << c.salary.amount << "," 
                << c.salary.frequency << "\n";
         }
 
+        //Encrypt and save
         string encrypted = Customer::encryptDecrypt(ss.str());
         ofs.write(encrypted.c_str(), encrypted.size());
         ofs.close();
@@ -369,9 +404,11 @@ bool UserRegistration::saveUsersToFile(const string& filename) {
 }
 
 
-// -----------------------------------------------------
-// LOAD USERS FROM FILE (INCLUDES BUDGET)
-// -----------------------------------------------------
+//===========================================================
+// LOAD USERS FROM FILE (INCLUDES BILLS AND SALARY)
+//===========================================================
+
+//Load users from encrypted file
 bool UserRegistration::loadUsersFromFile(const string& filename) {
     try {
         ifstream ifs(filename, ios::binary);
@@ -380,13 +417,14 @@ bool UserRegistration::loadUsersFromFile(const string& filename) {
         string encrypted((istreambuf_iterator<char>(ifs)), {});
         ifs.close();
 
+        //Decrypt file
         string data = Customer::encryptDecrypt(encrypted);
-
         stringstream ss(data);
         string line;
 
         users.clear();
 
+        //Process file line by line
         while (getline(ss, line)) {
             if (line.empty()) continue;
 
@@ -394,6 +432,7 @@ bool UserRegistration::loadUsersFromFile(const string& filename) {
             string user, pass, acc, tStr, tierStr, balStr, nameStr, phoneStr;
             string billsCountStr, billsDataStr, salAmtStr, salFreqStr;
 
+            //Parse fields
             getline(l, user, ',');
             getline(l, pass, ',');
             getline(l, acc, ',');
@@ -408,6 +447,7 @@ bool UserRegistration::loadUsersFromFile(const string& filename) {
             getline(l, salAmtStr, ',');
             getline(l, salFreqStr, ',');
 
+            //Create customer
             Customer c;
             c.passwordHash = pass;
             c.fullName = nameStr;
@@ -417,7 +457,7 @@ bool UserRegistration::loadUsersFromFile(const string& filename) {
             int tier = stoi(tierStr);
             double bal = stod(balStr);
 
-            // ACCOUNT
+            //Recreate account
             if (isSavings) {
                 if (tier == 1) c.account = new SavingsBasic(acc, bal);
                 else if (tier == 2) c.account = new SavingsSilver(acc, bal);
@@ -428,7 +468,7 @@ bool UserRegistration::loadUsersFromFile(const string& filename) {
                 else c.account = new GoldAccount(acc, bal);
             }
 
-            // BILLS
+            //Load bills
             int billCount = stoi(billsCountStr);
             stringstream bss(billsDataStr);
             string entry;
@@ -451,7 +491,7 @@ bool UserRegistration::loadUsersFromFile(const string& filename) {
                 c.bills.push_back(bill);
             }
 
-            // SALARY
+            //Load salary
             c.salary.amount = stod(salAmtStr);
             c.salary.frequency = salFreqStr;
 
@@ -466,9 +506,11 @@ bool UserRegistration::loadUsersFromFile(const string& filename) {
 }
 
 
-// -----------------------------------------------------
+//===========================================================
 // UPDATE PHONE NUMBER
-// -----------------------------------------------------
+//===========================================================
+
+//Change stored phone number
 bool UserRegistration::updatePhoneNumber(const string& username, const string& newPhone) {
     if (newPhone.size() != 10 || !all_of(newPhone.begin(), newPhone.end(), ::isdigit))
         return false;
