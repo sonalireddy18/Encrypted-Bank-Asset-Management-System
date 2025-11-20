@@ -10,10 +10,12 @@
 
 using namespace std;
 
+//Print a line underline
 static void printLine(const string& text) {
     cout << string(text.size(), '-') << "\n";
 }
 
+//Show main menu before login
 void showMainMenu() {
     string title = "BANK ASSET MANAGEMENT SYSTEM (BAMS)";
     cout << "\n" << title << "\n";
@@ -25,7 +27,7 @@ void showMainMenu() {
     cout << endl;
 }
 
-// Modified to accept dynamic title
+//Show user menu with dynamic title
 void showUserMenu(const string& titleText) {
     string title = titleText;
     cout << "\n" << title << "\n";
@@ -44,27 +46,31 @@ void showUserMenu(const string& titleText) {
     cout << endl;
 }
 
+//Main program loop
 int main() {
     UserRegistration registrationSystem;
     Transaction transactionSystem;
-    BudgetManager budget; 
+    BudgetManager budget;
     string currentUsername;
     bool loggedIn = false;
 
+    //Load stored data
     registrationSystem.loadUsersFromFile("users.dat");
     Transaction::loadBlockchainFromFile("transactions.dat");
 
     int choice = 0;
 
+    //Main loop
     while (true) {
 
-        // -------------------------------------------------------
-        //NOT LOGGED IN
-        // -------------------------------------------------------
+        //===========================================================
+        // USER NOT LOGGED IN
+        //===========================================================
         if (!loggedIn) {
             showMainMenu();
             cout << "Enter your choice: ";
 
+            //Validate input
             if (!(cin >> choice)) {
                 cin.clear();
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -74,8 +80,10 @@ int main() {
                 continue;
             }
 
+            //Register new user
             if (choice == 1) {
                 string username, accNo;
+
                 cout << "\nREGISTER NEW USER\n";
                 printLine("REGISTER NEW USER");
 
@@ -84,10 +92,12 @@ int main() {
                 cout << "Enter Account Number: ";
                 cin >> accNo;
 
-                // registerUser reads the rest (password, full name, etc.) itself
                 registrationSystem.registerUser(username, "", accNo);
+
                 printLine("REGISTER NEW USER");
             }
+
+            //Login
             else if (choice == 2) {
                 string username, password;
 
@@ -104,11 +114,14 @@ int main() {
                     printLine("Login Successful!");
                     currentUsername = username;
                     loggedIn = true;
-                } else {
+                } 
+                else {
                     cout << "Login Failed!\n";
                     printLine("Login Failed!");
                 }
             }
+
+            //Exit system
             else if (choice == 3) {
                 cout << "\nSaving users and blockchain...\n";
                 registrationSystem.saveUsersToFile("users.dat");
@@ -117,17 +130,20 @@ int main() {
                 printLine("Exiting System...");
                 break;
             }
+
+            //Invalid choice
             else {
                 cout << "Invalid Choice!\n";
                 printLine("Invalid Choice!");
             }
         }
 
-        //-------------------------------------------------------
-        //LOGGED IN
-        //-------------------------------------------------------
+        //===========================================================
+        // USER LOGGED IN
+        //===========================================================
         else {
 
+            //Get current customer
             Customer* cust = registrationSystem.getCustomerByUsername(currentUsername);
             if (!cust) {
                 cout << "User session error. Logging out...\n";
@@ -135,9 +151,9 @@ int main() {
                 continue;
             }
 
-            //-------------------------------------------------------
-            //DYNAMIC DASHBOARD TITLE
-            //-------------------------------------------------------
+            //===========================================================
+            // BUILD DYNAMIC DASHBOARD TITLE
+            //===========================================================
             string accType;
 
             if (dynamic_cast<GoldAccount*>(cust->account) || dynamic_cast<SavingsGold*>(cust->account))
@@ -154,6 +170,7 @@ int main() {
 
             string dynamicTitle = accType + " " + firstName + "'S DASHBOARD";
 
+            //Show user menu
             showUserMenu(dynamicTitle);
 
             cout << "Enter your choice: ";
@@ -167,12 +184,14 @@ int main() {
             string accNo = cust->getBankAccountNo();
 
 
-            //-------------------------------------------------------
-            //USER MENU OPTIONS
-            //-------------------------------------------------------
+            //===========================================================
+            // USER MENU OPERATIONS
+            //===========================================================
 
+            //Transfer funds
             if (choice == 1) {
-                string toAccNo; double amount;
+                string toAccNo; 
+                double amount;
 
                 cout << "\nTRANSFER FUNDS\n";
                 printLine("TRANSFER FUNDS");
@@ -189,6 +208,7 @@ int main() {
                 printLine("TRANSFER FUNDS");
             }
 
+            //Deposit
             else if (choice == 2) {
                 double amount;
 
@@ -203,6 +223,7 @@ int main() {
                 printLine("DEPOSIT MONEY");
             }
 
+            //Withdraw
             else if (choice == 3) {
                 double amount;
 
@@ -217,6 +238,7 @@ int main() {
                 printLine("WITHDRAW MONEY");
             }
 
+            //View balance
             else if (choice == 4) {
                 cout << "\nACCOUNT BALANCE\n";
                 printLine("ACCOUNT BALANCE");
@@ -228,6 +250,7 @@ int main() {
                 printLine("ACCOUNT BALANCE");
             }
 
+            //Print history
             else if (choice == 5) {
                 cout << "\nTRANSACTION HISTORY\n";
                 printLine("TRANSACTION HISTORY");
@@ -237,6 +260,7 @@ int main() {
                 printLine("TRANSACTION HISTORY");
             }
 
+            //Delete account
             else if (choice == 6) {
                 cout << "\nDELETE ACCOUNT\n";
                 printLine("DELETE ACCOUNT");
@@ -254,22 +278,24 @@ int main() {
                 printLine("DELETE ACCOUNT");
             }
 
+            //Logout
             else if (choice == 7) {
                 cout << "Logging out...\n";
                 loggedIn = false;
                 currentUsername.clear();
             }
 
+            //Upgrade account
             else if (choice == 8) {
                 cout << "\nACCOUNT UPGRADE\n";
                 printLine("ACCOUNT UPGRADE");
 
-                // Call the upgrade implementation in signup.cpp
-                cust->upgradeAccount();   
+                cust->upgradeAccount();
 
                 printLine("ACCOUNT UPGRADE");
             }
 
+            //Show blockchain
             else if (choice == 9) {
                 cout << "\nBLOCKCHAIN LEDGER\n";
                 printLine("BLOCKCHAIN LEDGER");
@@ -279,10 +305,12 @@ int main() {
                 printLine("BLOCKCHAIN LEDGER");
             }
 
+            //Budget menu
             else if (choice == 10) { 
                 budget.showBudgetMenu(cust, registrationSystem);
             }
 
+            //Invalid choice
             else {
                 cout << "Invalid Choice!\n";
                 printLine("Invalid Choice!");
