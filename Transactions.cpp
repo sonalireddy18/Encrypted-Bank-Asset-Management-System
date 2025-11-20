@@ -8,10 +8,12 @@ using namespace std;
 Blockchain Transaction::blockchain;
 
 static void printLine(const string& text) {
+    //Prints a line of dashes matching the size of the given text
     cout << string(text.size(), '-') << "\n";
 }
 
 void Transaction::transferByAccountNoUserRegistration(UserRegistration& ur, const string& f, const string& t, double amt) {
+    //Get the customer objects for both accounts
     Customer* fc = ur.getCustomerByAccountNo(f);
     Customer* tc = ur.getCustomerByAccountNo(t);
 
@@ -19,24 +21,30 @@ void Transaction::transferByAccountNoUserRegistration(UserRegistration& ur, cons
     cout << "\n" << title << "\n";
     printLine(title);
 
+    //Check if accounts exist
     if (!fc || !tc) {
         cout << "Error: Invalid account number(s).\n";
         printLine(title);
         return;
     }
 
+    //Check if the from account is a savings account
     if (dynamic_cast<SavingsAccount*>(fc->account)) {
         cout << "Error: Savings accounts cannot transfer.\n";
         printLine(title);
         return;
     }
 
+    //Check if the from account has sufficient balance
     if (fc->account->getBal() >= amt) {
         fc->account->setBal(fc->account->getBal() - amt);
         tc->account->setBal(tc->account->getBal() + amt);
+
         cout << "Transfer Successful!\n";
         cout << "From Account: " << f << "\nTo Account  : " << t
              << "\nAmount      : Rs " << fixed << setprecision(2) << amt << "\n";
+
+        //Record the transfer in the blockchain
         blockchain.addTransaction(f, t, amt);
     } else {
         cout << "Error: Insufficient balance.\n";
@@ -46,21 +54,27 @@ void Transaction::transferByAccountNoUserRegistration(UserRegistration& ur, cons
 }
 
 void Transaction::withdrawUserRegistration(UserRegistration& ur, const string& a, double amt) {
+    //Get customer by account number
     Customer* c = ur.getCustomerByAccountNo(a);
 
     string title = "WITHDRAWAL DETAILS";
     cout << "\n" << title << "\n";
     printLine(title);
 
+    //Check if account exists
     if (!c) {
         cout << "Error: Account not found.\n";
         printLine(title);
         return;
     }
 
+    //Check balance before withdrawing
     if (c->account->getBal() >= amt) {
         c->account->setBal(c->account->getBal() - amt);
+
+        //Record withdrawal transaction in blockchain
         blockchain.addTransaction(a, "", amt);
+
         cout << "Withdrawal Successful!\n";
         cout << "Account: " << a << "\nAmount : Rs " << fixed << setprecision(2) << amt << "\n";
     } else {
@@ -71,20 +85,26 @@ void Transaction::withdrawUserRegistration(UserRegistration& ur, const string& a
 }
 
 void Transaction::depositUserRegistration(UserRegistration& ur, const string& a, double amt) {
+    //Get customer by account number
     Customer* c = ur.getCustomerByAccountNo(a);
 
     string title = "DEPOSIT DETAILS";
     cout << "\n" << title << "\n";
     printLine(title);
 
+    //Check if account exists
     if (!c) {
         cout << "Error: Account not found.\n";
         printLine(title);
         return;
     }
 
+    //Deposit amount into the account
     c->account->setBal(c->account->getBal() + amt);
+
+    //Record deposit transaction in blockchain
     blockchain.addTransaction("", a, amt);
+
     cout << "Deposit Successful!\n";
     cout << "Account: " << a << "\nAmount : Rs " << fixed << setprecision(2) << amt << "\n";
 
@@ -93,12 +113,14 @@ void Transaction::depositUserRegistration(UserRegistration& ur, const string& a,
 
 // updated - Personal transaction history
 void Transaction::printTransactionHistory(const string& accNo) {
+    //Display transaction history for a specific account
     string title = "TRANSACTION HISTORY FOR ACCOUNT " + accNo;
     cout << "\n" << title << "\n";
     printLine(title);
 
     bool found = false;
 
+    //Iterate through all blocks and transactions
     for (const auto& block : blockchain.chain) {
         for (const auto& tx : block.transactions) {
             if (tx.fromAccount == accNo || tx.toAccount == accNo) {
@@ -120,6 +142,7 @@ void Transaction::printTransactionHistory(const string& accNo) {
 
 // New - Full Blockchain Ledger View
 void Transaction::printFullBlockchain() {
+    //Display entire blockchain for debugging or admin view
     string title = "FULL BLOCKCHAIN LEDGER";
     cout << "\n" << title << "\n";
     cout << string(title.size(), '-') << "\n";
@@ -129,6 +152,7 @@ void Transaction::printFullBlockchain() {
         return;
     }
 
+    //Loop through each block and print details
     for (const auto& block : blockchain.chain) {
         string header = "Block #" + to_string(block.getIndex());
         cout << "\n" << header << "\n";
@@ -138,6 +162,7 @@ void Transaction::printFullBlockchain() {
         cout << "Current Hash  : " << block.getHash() << "\n";
         cout << "Transactions  :\n";
 
+        //Print all transactions inside the block
         if (block.transactions.empty()) {
             cout << "   (No transactions in this block)\n";
         } else {
@@ -156,10 +181,13 @@ void Transaction::printFullBlockchain() {
 
 // Save blockchain to file
 void Transaction::saveBlockchainToFile(const string& filename) {
+    //Open file for binary writing
     ofstream ofs(filename, ios::binary);
     if (!ofs) return;
 
     stringstream ss;
+
+    //Write each block and transaction to buffer
     for (const auto& block : blockchain.chain) {
         ss << "BLOCK," << block.getIndex() << "," << block.getPreviousHash() << "," << block.getHash() << "," << block.getIndex() << "\n";
     
@@ -169,27 +197,33 @@ void Transaction::saveBlockchainToFile(const string& filename) {
         ss << "END_BLOCK\n";
     }
 
+    //Encrypt before saving for basic security
     string encrypted = Customer::encryptDecrypt(ss.str());
     ofs.write(encrypted.c_str(), encrypted.size());
     ofs.close();
 }
 
 void Transaction::loadBlockchainFromFile(const string& filename) {
+    //Open file for reading
     ifstream ifs(filename, ios::binary);
     if (!ifs) return;
 
     string encrypted((istreambuf_iterator<char>(ifs)), {});
     ifs.close();
 
+    //Decrypt the data
     string data = Customer::encryptDecrypt(encrypted);
     stringstream ss(data);
     string line;
 
-    blockchain = Blockchain(); // reset chain
+    //Reset blockchain before loading new data
+    blockchain = Blockchain();
     Block* currentBlock = nullptr;
 
+    //Parse file line by line
     while (getline(ss, line)) {
         if (line.rfind("BLOCK", 0) == 0) {
+            //Read block metadata
             stringstream l(line);
             string tag, idxStr, prevHash, hashStr, dummy;
             getline(l, tag, ',');
@@ -198,10 +232,13 @@ void Transaction::loadBlockchainFromFile(const string& filename) {
             getline(l, hashStr, ',');
             getline(l, dummy, ',');
             int idx = stoi(idxStr);
+
+            //Create block and add to chain
             blockchain.chain.push_back(Block(idx, prevHash));
             currentBlock = &blockchain.chain.back();
         } 
         else if (line.rfind("TX", 0) == 0 && currentBlock) {
+            //Read transaction line
             stringstream l(line);
             string tag, from, to, amtStr, timeStr;
             getline(l, tag, ',');
@@ -209,7 +246,11 @@ void Transaction::loadBlockchainFromFile(const string& filename) {
             getline(l, to, ',');
             getline(l, amtStr, ',');
             getline(l, timeStr, ',');
+
+            //Convert fields into transaction structure
             TransactionRecord tx{from, to, stod(amtStr), static_cast<time_t>(stoll(timeStr))};
+
+            //Add transaction to block
             currentBlock->operator+=(tx);
         }
     }
