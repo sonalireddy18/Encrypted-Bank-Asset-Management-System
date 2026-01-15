@@ -36,10 +36,10 @@ This project demonstrates key Object-Oriented Programming principles:
 | Module | File(s) | Description |
 | :--- | :--- | :--- |
 | **Account** | `Account.h/cpp` | Manages account tiers and interest rates. |
-| **Signup** | `signup.h/cpp` | Handles registration, authentication, and basic XOR encryption. |
-| **Blockchain** | `block.h/cpp` | Implements the linked-block structure and DJB2 hashing. |
+| **Signup** | `Signup.h/cpp` | Handles registration, authentication, and basic XOR encryption. |
+| **Blockchain** | `Block.h/cpp` | Implements the linked-block structure and DJB2 hashing. |
 | **Transaction** | `Transactions.h/cpp` | Processes transfers, deposits, and withdrawal logic. |
-| **Budget** | `budget.h/cpp` | Manages bills, salaries, and spending summaries. |
+| **Budget** | `Budget.h/cpp` | Manages bills, salaries, and spending summaries. |
 | **Main** | `main.cpp` | Central controller for user dashboards and system state. |
 
 ## ⚠️ Security Note
