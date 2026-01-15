@@ -1,117 +1,111 @@
-#include "transaction.h"
+#include "Transactions.h"
 #include <iostream>
 #include <iomanip>
 #include <fstream>
 #include <sstream>
+
 using namespace std;
 
 Blockchain Transaction::blockchain;
 
 static void printLine(const string& text) {
-    //Prints a line of dashes matching the size of the given text
     cout << string(text.size(), '-') << "\n";
 }
 
 void Transaction::transferByAccountNoUserRegistration(UserRegistration& ur, const string& f, const string& t, double amt) {
-    //Get the customer objects for both accounts
     Customer* fc = ur.getCustomerByAccountNo(f);
     Customer* tc = ur.getCustomerByAccountNo(t);
-
     string title = "TRANSFER DETAILS";
     cout << "\n" << title << "\n";
     printLine(title);
 
-    //Check if accounts exist
+    if (amt <= 0) {
+        cout << "Error: Invalid amount. Please enter a positive value and try again.\n";
+        printLine(title);
+        return;
+    }
+
     if (!fc || !tc) {
         cout << "Error: Invalid account number(s).\n";
         printLine(title);
         return;
     }
 
-    //Check if the from account is a savings account
     if (dynamic_cast<SavingsAccount*>(fc->account)) {
         cout << "Error: Savings accounts cannot transfer.\n";
         printLine(title);
         return;
     }
 
-    //Check if the from account has sufficient balance
     if (fc->account->getBal() >= amt) {
         fc->account->setBal(fc->account->getBal() - amt);
         tc->account->setBal(tc->account->getBal() + amt);
-
         cout << "Transfer Successful!\n";
-        cout << "From Account: " << f << "\nTo Account  : " << t
-             << "\nAmount      : Rs " << fixed << setprecision(2) << amt << "\n";
-
-        //Record the transfer in the blockchain
+        cout << "From Account: " << f << "\nTo Account : " << t
+             << "\nAmount : Rs " << fixed << setprecision(2) << amt << "\n";
         blockchain.addTransaction(f, t, amt);
     } else {
         cout << "Error: Insufficient balance.\n";
     }
-
     printLine(title);
 }
 
 void Transaction::withdrawUserRegistration(UserRegistration& ur, const string& a, double amt) {
-    //Get customer by account number
     Customer* c = ur.getCustomerByAccountNo(a);
-
     string title = "WITHDRAWAL DETAILS";
     cout << "\n" << title << "\n";
     printLine(title);
 
-    //Check if account exists
     if (!c) {
         cout << "Error: Account not found.\n";
         printLine(title);
         return;
     }
 
-    //Check balance before withdrawing
+    // EXCEPTION HANDLING: Negative/Zero check
+    if (amt <= 0) {
+        cout << "Error: Invalid amount. Please enter a positive value and try again.\n";
+        printLine(title);
+        return;
+    }
+
     if (c->account->getBal() >= amt) {
         c->account->setBal(c->account->getBal() - amt);
-
-        //Record withdrawal transaction in blockchain
         blockchain.addTransaction(a, "", amt);
-
         cout << "Withdrawal Successful!\n";
         cout << "Account: " << a << "\nAmount : Rs " << fixed << setprecision(2) << amt << "\n";
     } else {
         cout << "Error: Insufficient balance.\n";
     }
-
     printLine(title);
 }
 
 void Transaction::depositUserRegistration(UserRegistration& ur, const string& a, double amt) {
-    //Get customer by account number
     Customer* c = ur.getCustomerByAccountNo(a);
-
     string title = "DEPOSIT DETAILS";
     cout << "\n" << title << "\n";
     printLine(title);
 
-    //Check if account exists
     if (!c) {
         cout << "Error: Account not found.\n";
         printLine(title);
         return;
     }
 
-    //Deposit amount into the account
+    // EXCEPTION HANDLING: Negative/Zero check
+    if (amt <= 0) {
+        cout << "Error: Invalid amount. Please enter a positive value and try again.\n";
+        printLine(title);
+        return;
+    }
+
     c->account->setBal(c->account->getBal() + amt);
-
-    //Record deposit transaction in blockchain
     blockchain.addTransaction("", a, amt);
-
     cout << "Deposit Successful!\n";
     cout << "Account: " << a << "\nAmount : Rs " << fixed << setprecision(2) << amt << "\n";
-
     printLine(title);
 }
 
-// updated - Personal transaction history
 void Transaction::printTransactionHistory(const string& accNo) {
     //Display transaction history for a specific account
     string title = "TRANSACTION HISTORY FOR ACCOUNT " + accNo;
@@ -140,7 +134,7 @@ void Transaction::printTransactionHistory(const string& accNo) {
     printLine(title);
 }
 
-// New - Full Blockchain Ledger View
+// Full Blockchain Ledger View
 void Transaction::printFullBlockchain() {
     //Display entire blockchain for debugging or admin view
     string title = "FULL BLOCKCHAIN LEDGER";
