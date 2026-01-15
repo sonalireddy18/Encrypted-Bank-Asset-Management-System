@@ -48,10 +48,10 @@ Please note that the encryption (XOR) and hashing (DJB2) methods used in this pr
 ## 🚀 Getting Started
 1. **Clone the Repository:**
    ```bash
-   git clone [https://github.com/your-username/BAMS-Project.git](https://github.com/your-username/BAMS-Project.git)
+   git clone [https://github.com/your-username/Encrypted-Bank-Asset-Management-System.git.git](https://github.com/your-username/Encrypted-Bank-Asset-Management-System.git)
 2.  **Compile the Project:**
     ```bash
-    g++ main.cpp signup.cpp block.cpp Transactions.cpp Account.cpp budget.cpp -o BAMS
+    g++ main.cpp Signup.cpp Block.cpp Transactions.cpp Account.cpp Budget.cpp -o BAMS
     ```
 3.  **Run the Application:**
     ```bash
