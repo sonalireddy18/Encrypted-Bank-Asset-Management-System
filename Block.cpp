@@ -1,4 +1,4 @@
-#include "block.h"
+#include "Block.h"
 #include <sstream>
 #include <ctime>
 #include <iostream>
@@ -10,7 +10,7 @@ static void printLine(const string& text) {
     cout << string(text.size(), '-') << "\n";
 }
 
-//Helper: simple DJB2 hash
+//simple DJB2 hash
 static string hashString(const string& input) {
     unsigned int hash = 5381;
     for (char c : input) hash = ((hash << 5) + hash) + static_cast<unsigned char>(c);
