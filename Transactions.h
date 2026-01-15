@@ -1,5 +1,5 @@
-#ifndef TRANSACTION_H
-#define TRANSACTION_H
+#ifndef TRANSACTIONS_H
+#define TRANSACTIONS_H
 
 #include <string>
 #include "signup.h"
