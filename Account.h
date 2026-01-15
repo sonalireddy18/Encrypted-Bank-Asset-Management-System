@@ -1,5 +1,5 @@
-#ifndef ACCOUNTS_H
-#define ACCOUNTS_H
+#ifndef ACCOUNT_H
+#define ACCOUNT_H
 
 #include <string>
 #include <iostream>
@@ -105,4 +105,4 @@ public:
 // Explicit template instantiation
 extern template class Account<double>;
 
-#endif
+#endif //ACCOUNT_H
