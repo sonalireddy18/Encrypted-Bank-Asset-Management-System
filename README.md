@@ -10,17 +10,6 @@ The **Encrypted Bank Asset Management System (BAMS)** is a C++ based banking pla
 * **Transaction Traceability:** A blockchain structure where every financial activity is recorded in linked blocks to maintain transaction integrity.
 * **Persistence:** File-based storage allows user accounts, bill history, and transaction ledgers to persist across multiple sessions.
 
-## Account Tier System
-The system uses a tiered hierarchy to define account privileges and requirements:
-
-| Tier | Min. Balance (Normal) | Min. Balance (Savings) | Interest Rate |
-| :--- | :--- | :--- | :--- |
-| **Basic** | Rs 0 | Rs 0 | 2.0% |
-| **Silver** | Rs 10,000 | Rs 10,000 | 5.0% |
-| **Gold** | Rs 100,000 | Rs 100,000 | 10.0% |
-
-
-
 ## Architecture & OOP Concepts
 This project demonstrates key Object-Oriented Programming principles:
 1. **Encapsulation:** Controlled access to user data (passwords, balances) using private methods and public interfaces.
@@ -29,8 +18,6 @@ This project demonstrates key Object-Oriented Programming principles:
 4. **Polymorphism:** Runtime polymorphism through virtual `display()` functions and dynamic casting for account type identification.
 5. **Operator Overloading:** The `+=` operator is overloaded to intuitively add transaction records to blockchain blocks.
 6. **Templates:** The `Account<T>` base class uses templates to support different data types for account balances.
-
-
 
 ## Project Structure
 | Module | File(s) | Description |
@@ -41,6 +28,8 @@ This project demonstrates key Object-Oriented Programming principles:
 | **Transaction** | `Transactions.h/cpp` | Processes transfers, deposits, and withdrawal logic. |
 | **Budget** | `Budget.h/cpp` | Manages bills, salaries, and spending summaries. |
 | **Main** | `main.cpp` | Central controller for user dashboards and system state. |
+
+## Project Output Screenshots
 
 ## ⚠️ Security Note
 Please note that the encryption (XOR) and hashing (DJB2) methods used in this project are for **educational and demonstrative purposes only**. They provide basic data obfuscation for academic exploration but are not intended for high-security real-world financial applications.
