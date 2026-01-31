@@ -31,6 +31,9 @@ This project demonstrates key Object-Oriented Programming principles:
 
 ## Project Output Screenshots
 
+![Dashboard](screenshots/1.png)
+
+
 ## ⚠️ Security Note
 Please note that the encryption (XOR) and hashing (DJB2) methods used in this project are for **educational and demonstrative purposes only**. They provide basic data obfuscation for academic exploration but are not intended for high-security real-world financial applications.
 
@@ -51,7 +54,7 @@ Please note that the encryption (XOR) and hashing (DJB2) methods used in this pr
 This project is licensed under the MIT License - see the [LICENSE] file for details.
 
 ## 👥 Contributors
-* **Maddi Sonali Reddy** 
+* **Sonali Reddy Maddi** 
 * **Vootada Vennela** 
 
 ---
