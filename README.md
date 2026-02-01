@@ -1,4 +1,4 @@
-# Encrypted Bank Asset Management System (BAMS)
+# Encrypted Bank Asset Management System
 
 ## Project Overview
 The **Encrypted Bank Asset Management System (BAMS)** is a C++ based banking platform designed to combine essential financial operations with personal asset management and transaction transparency. The system integrates a **Budgeting Module** to help users track their spendable income and a **blockchain-inspired ledger** to ensure that every financial activity is recorded with unique hashes for data integrity.
@@ -18,6 +18,7 @@ This project demonstrates key Object-Oriented Programming principles:
 4. **Polymorphism:** Runtime polymorphism through virtual `display()` functions and dynamic casting for account type identification.
 5. **Operator Overloading:** The `+=` operator is overloaded to intuitively add transaction records to blockchain blocks.
 6. **Templates:** The `Account<T>` base class uses templates to support different data types for account balances.
+7. **Exception Handling:** Program can detect and handle runtime errors and prevents crashing if there is an input/output error or saving/loading error.
 
 ## Project Structure
 | Module | File(s) | Description |
@@ -31,8 +32,10 @@ This project demonstrates key Object-Oriented Programming principles:
 
 ## Project Output Screenshots
 
-![Dashboard](screenshots/1.png)
+![Dashboard](screenshots/register new user.png)
+![Dashboard](screenshots/withdraw money.png)
 
+The other screenshots present in the folder.
 
 ## ⚠️ Security Note
 Please note that the encryption (XOR) and hashing (DJB2) methods used in this project are for **educational and demonstrative purposes only**. They provide basic data obfuscation for academic exploration but are not intended for high-security real-world financial applications.
