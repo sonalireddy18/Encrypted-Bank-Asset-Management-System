@@ -33,7 +33,6 @@ This project demonstrates key Object-Oriented Programming principles:
 ## Project Output Screenshots
 
 ![Register](screenshots/register%20new%20user.png)
-![Withdraw](screenshots/withdraw%20money.png)
 
 The other screenshots present in the folder.
 
