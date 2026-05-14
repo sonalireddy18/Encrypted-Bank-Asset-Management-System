@@ -1,7 +1,9 @@
 # Encrypted Bank Asset Management System
 
-## Project Overview
+## Overview
 The **Encrypted Bank Asset Management System (BAMS)** is a C++ based banking platform designed to combine essential financial operations with personal asset management and transaction transparency. The system integrates a **Budgeting Module** to help users track their spendable income and a **blockchain-inspired ledger** to ensure that every financial activity is recorded with unique hashes for data integrity.
+
+---
 
 ## Objectives
 * **Core Banking Functions:** Support for user registration, deposits, withdrawals, transfers, and tiered account upgrades (Basic, Silver, Gold).
@@ -9,6 +11,8 @@ The **Encrypted Bank Asset Management System (BAMS)** is a C++ based banking pla
 * **Demonstrative Security:** Implementation of password hashing (DJB2 algorithm), simple XOR encryption for file storage, and account lockout mechanisms to protect user credentials.
 * **Transaction Traceability:** A blockchain structure where every financial activity is recorded in linked blocks to maintain transaction integrity.
 * **Persistence:** File-based storage allows user accounts, bill history, and transaction ledgers to persist across multiple sessions.
+
+---
 
 ## Architecture & OOP Concepts
 This project demonstrates key Object-Oriented Programming principles:
@@ -20,6 +24,8 @@ This project demonstrates key Object-Oriented Programming principles:
 6. **Templates:** The `Account<T>` base class uses templates to support different data types for account balances.
 7. **Exception Handling:** Program can detect and handle runtime errors and prevents crashing if there is an input/output error or saving/loading error.
 
+---
+
 ## Project Structure
 | Module | File(s) | Description |
 | :--- | :--- | :--- |
@@ -30,14 +36,20 @@ This project demonstrates key Object-Oriented Programming principles:
 | **Budget** | `Budget.h/cpp` | Manages bills, salaries, and spending summaries. |
 | **Main** | `main.cpp` | Central controller for user dashboards and system state. |
 
+---
+
 ## Project Output Screenshots
 
 ![Register](screenshots/register%20new%20user.png)
 
 The other screenshots present in the folder.
 
+---
+
 ## ⚠️ Security Note
 Please note that the encryption (XOR) and hashing (DJB2) methods used in this project are for **educational and demonstrative purposes only**. They provide basic data obfuscation for academic exploration but are not intended for high-security real-world financial applications.
+
+---
 
 ## Getting Started
 1. **Clone the Repository:**
@@ -52,8 +64,12 @@ Please note that the encryption (XOR) and hashing (DJB2) methods used in this pr
     ./BAMS
     ```
 
+---
+
 ## 📜 License
 This project is licensed under the MIT License - see the [LICENSE] file for details.
+
+---
 
 ## 👥 Contributors
 * **Sonali Reddy Maddi** 
