@@ -38,7 +38,7 @@ This project demonstrates key Object-Oriented Programming principles:
 
 ---
 
-## Project Output Screenshots
+## Output Screenshots
 
 ![Register](screenshots/register%20new%20user.png)
 
@@ -51,7 +51,7 @@ Please note that the encryption (XOR) and hashing (DJB2) methods used in this pr
 
 ---
 
-## Getting Started
+## Execution
 1. **Clone the Repository:**
    ```bash
    git clone [https://github.com/your-username/Encrypted-Bank-Asset-Management-System.git.git](https://github.com/your-username/Encrypted-Bank-Asset-Management-System.git)
@@ -63,17 +63,11 @@ Please note that the encryption (XOR) and hashing (DJB2) methods used in this pr
     ```bash
     ./BAMS
     ```
-
+    
 ---
 
 ## 📜 License
 This project is licensed under the MIT License - see the [LICENSE] file for details.
-
----
-
-## 👥 Contributors
-* **Sonali Reddy Maddi** 
-* **Vootada Vennela** 
 
 ---
 *Developed for the Object Oriented Programming Course (CS2000) under Dr. Mukku Nisanth Kartheek.*
